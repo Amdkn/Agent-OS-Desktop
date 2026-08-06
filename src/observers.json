@@ -1,0 +1,81 @@
+{
+  "genere_le": "2026-08-06",
+  "source": "C:/Users/amado/ASpace_OS_V3/00_Amadeus/10_Observers/REGISTRY.json",
+  "entrees": [
+    {
+      "id": "opik",
+      "name": "opik",
+      "status": "presente",
+      "chemin": "C:/Users/amado/opik",
+      "depot": "https://github.com/comet-ml/opik.git"
+    },
+    {
+      "id": "agentpulse",
+      "name": "agentpulse",
+      "status": "presente",
+      "chemin": "C:/Users/amado/agentpulse",
+      "depot": "https://github.com/prove-ai/agentpulse.git"
+    },
+    {
+      "id": "aios",
+      "name": "AIOS",
+      "status": "presente",
+      "chemin": "C:/Users/amado/AIOS",
+      "depot": "https://github.com/agiresearch/AIOS.git"
+    },
+    {
+      "id": "agents-observe",
+      "name": "agents-observe",
+      "status": "presente",
+      "chemin": "C:/Users/amado/observability-stack/agents-observe",
+      "depot": "https://github.com/simple10/agents-observe.git"
+    },
+    {
+      "id": "phoenix",
+      "name": "phoenix",
+      "status": "a_cloner",
+      "url": "https://github.com/arize-ai/phoenix"
+    },
+    {
+      "id": "langsmith",
+      "name": "langsmith",
+      "status": "service_heberge",
+      "url": "https://smith.langchain.com/"
+    },
+    {
+      "id": "pocketbase-vec",
+      "name": "pocketbase-vec",
+      "status": "presente",
+      "chemin": "C:/Users/amado/pocketbase-vec",
+      "description": "PocketBase + sqlite-vec, sans CGO"
+    },
+    {
+      "id": "super-simple-software-factory",
+      "name": "sssf",
+      "status": "presente",
+      "chemin": "C:/Users/amado/super-simple-software-factory",
+      "depot": "https://github.com/disler/super-simple-software-factory.git",
+      "description": "Workflows ADW deterministes en Python, agents bornes en phases, trace SQLite"
+    },
+    {
+      "id": "agent-super-spy",
+      "name": "agent-super-spy",
+      "status": "a_cloner",
+      "url": "https://github.com/simple10/agent-super-spy"
+    },
+    {
+      "id": "observatoire",
+      "name": "observatoire",
+      "status": "presente",
+      "chemin": "C:/Users/amado/agent-os/observatoire",
+      "description": "Observatoire des delegations — http://127.0.0.1:8787"
+    },
+    {
+      "id": "agent-os",
+      "name": "agent-os",
+      "status": "presente",
+      "chemin": "C:/Users/amado/agent-os",
+      "description": "Agent OS — pas un observateur, il cadre l'ecriture"
+    }
+  ]
+}
