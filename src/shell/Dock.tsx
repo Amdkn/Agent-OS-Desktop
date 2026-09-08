@@ -58,7 +58,8 @@ export function Dock() {
     };
   }, [reglagesOuverts]);
 
-  // Fenêtres ouvertes groupées par app
+  // Fenêtres ouvertes : une pastille par application ayant au moins une fenêtre ouverte
+  // Map appId -> WindowState[] pour gérer focus, minimisation et fermeture
   const openByApp = new Map<string, typeof openWindows>();
   for (const w of openWindows) {
     const list = openByApp.get(w.appId) ?? [];
@@ -66,10 +67,19 @@ export function Dock() {
     openByApp.set(w.appId, list);
   }
 
-  // Applications prioritaires et épinglées
-  const dockApps = apps
-    .filter((a) => !a.hidden)
-    .sort((a, b) => (a.dockSlot ?? 99) - (b.dockSlot ?? 99));
+  // Liste des apps ouvertes, ordonnées selon l'ordre d'ouverture
+  const openAppIds = Array.from(openByApp.keys());
+  const openAppsList = openAppIds.map((aid) => {
+    const found = apps.find((a) => a.id === aid);
+    const wins = openByApp.get(aid) ?? [];
+    return {
+      id: aid,
+      name: found?.name ?? wins[0]?.title ?? aid,
+      description: found?.description ?? wins[0]?.title ?? aid,
+      icon: found?.icon ?? '🪟',
+      windows: wins,
+    };
+  });
 
   const skin = dockSkinById(skinId);
   const vertical = position === 'right';
@@ -206,82 +216,77 @@ export function Dock() {
           </span>
         </div>
 
-        {/* Séparateur */}
-        <span
-          className="shrink-0 rounded-full"
-          style={{
-            background: skin.dark ? 'rgba(255,255,255,0.22)' : 'rgba(0,0,0,0.15)',
-            width: vertical ? 20 : 1,
-            height: vertical ? 1 : 20,
-            margin: vertical ? '2px 0' : '0 2px',
-          }}
-        />
+        {/* Séparateur conditionnel si au moins une application est ouverte */}
+        {openAppsList.length > 0 && (
+          <span
+            className="shrink-0 rounded-full"
+            style={{
+              background: skin.dark ? 'rgba(255,255,255,0.22)' : 'rgba(0,0,0,0.15)',
+              width: vertical ? 20 : 1,
+              height: vertical ? 1 : 20,
+              margin: vertical ? '2px 0' : '0 2px',
+            }}
+          />
+        )}
 
-        {/* Liste défilable des applications du Dock */}
-        <div
-          className={`no-scrollbar flex min-w-0 p-1 items-center ${
-            vertical
-              ? 'flex-col gap-1.5 max-h-[64vh] overflow-y-auto overflow-x-hidden'
-              : 'flex-row gap-1.5 max-w-[70vw] overflow-x-auto overflow-y-hidden'
-          }`}
-        >
-          {dockApps.map((app, idx) => {
-            const wins = openByApp.get(app.id) ?? [];
-            const running = wins.length > 0;
-            const hasFocus = wins.some((w) => w.id === focused);
-            const allMinimized = running && wins.every((w) => w.minimized);
-            const scale = getScale(idx);
+        {/* Liste défilable des applications OUVERTES du Dock (disparaissent à la fermeture) */}
+        {openAppsList.length > 0 && (
+          <div
+            className={`no-scrollbar flex min-w-0 p-1 items-center ${
+              vertical
+                ? 'flex-col gap-1.5 max-h-[64vh] overflow-y-auto overflow-x-hidden'
+                : 'flex-row gap-1.5 max-w-[70vw] overflow-x-auto overflow-y-hidden'
+            }`}
+          >
+            {openAppsList.map((app, idx) => {
+              const wins = app.windows;
+              const hasFocus = wins.some((w) => w.id === focused);
+              const allMinimized = wins.every((w) => w.minimized);
+              const scale = getScale(idx);
 
-            const handleClick = () => {
-              if (!running) {
-                open(app.id);
-                return;
-              }
-              // Si la fenêtre active de cette app est au premier plan, on la minimise
-              if (hasFocus && focused) {
-                minimizeWindow(focused);
-              } else {
-                // Sinon on restaure ou focalise la première fenêtre
-                const target = wins[0];
-                if (target) {
-                  focusWindow(target.id);
+              const handleClick = () => {
+                // Si la fenêtre active de cette app est au premier plan, on la minimise
+                if (hasFocus && focused) {
+                  minimizeWindow(focused);
+                } else {
+                  // Sinon on restaure ou focalise la première fenêtre
+                  const target = wins[0];
+                  if (target) {
+                    focusWindow(target.id);
+                  }
                 }
-              }
-            };
+              };
 
-            return (
-              <div key={app.id} className="group relative shrink-0">
-                <button
-                  onClick={handleClick}
-                  onMouseEnter={() => setSurvolIndex(idx)}
-                  title={app.description || app.name}
-                  aria-label={app.name}
-                  className={`flex items-center justify-center border transition-all duration-150 active:scale-95 ${
-                    allMinimized ? 'opacity-60' : 'opacity-100'
-                  }`}
-                  style={{
-                    width: 34,
-                    height: 34,
-                    borderRadius: skin.tileRadius,
-                    transform: `scale(${scale})`,
-                    background: hasFocus
-                      ? 'rgba(16, 185, 129, 0.25)'
-                      : running
-                      ? skin.dark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(255, 255, 255, 0.85)'
-                      : skin.dark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(255, 255, 255, 0.5)',
-                    borderColor: hasFocus
-                      ? 'rgba(16, 185, 129, 0.6)'
-                      : skin.dark ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.1)',
-                    boxShadow: hasFocus
-                      ? '0 0 10px rgba(16, 185, 129, 0.35)'
-                      : 'none',
-                  }}
-                >
-                  <span className="text-xl select-none">{app.icon}</span>
-                </button>
+              return (
+                <div key={app.id} className="group relative shrink-0">
+                  <button
+                    onClick={handleClick}
+                    onMouseEnter={() => setSurvolIndex(idx)}
+                    title={app.description || app.name}
+                    aria-label={app.name}
+                    className={`flex items-center justify-center border transition-all duration-150 active:scale-95 ${
+                      allMinimized ? 'opacity-60' : 'opacity-100'
+                    }`}
+                    style={{
+                      width: 34,
+                      height: 34,
+                      borderRadius: skin.tileRadius,
+                      transform: `scale(${scale})`,
+                      background: hasFocus
+                        ? 'rgba(16, 185, 129, 0.25)'
+                        : skin.dark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(255, 255, 255, 0.85)',
+                      borderColor: hasFocus
+                        ? 'rgba(16, 185, 129, 0.6)'
+                        : skin.dark ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.1)',
+                      boxShadow: hasFocus
+                        ? '0 0 10px rgba(16, 185, 129, 0.35)'
+                        : 'none',
+                    }}
+                  >
+                    <span className="text-xl select-none">{app.icon}</span>
+                  </button>
 
-                {/* Bouton de fermeture au survol si l'app tourne */}
-                {running && wins.length > 0 && (
+                  {/* Bouton de fermeture au survol */}
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
@@ -293,10 +298,8 @@ export function Dock() {
                   >
                     <X className="h-2 w-2" />
                   </button>
-                )}
 
-                {/* Point d'état d'activité */}
-                {running && (
+                  {/* Point d'état d'activité */}
                   <span
                     className={`absolute rounded-full pointer-events-none transition-all ${
                       hasFocus
@@ -308,27 +311,27 @@ export function Dock() {
                         : 'bottom-0 left-1/2 -translate-x-1/2 w-1.5 h-1.5'
                     }`}
                   />
-                )}
 
-                {/* Infobulle nom */}
-                <span
-                  className={`absolute px-2 py-1 rounded text-[10px] whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 ${
-                    vertical
-                      ? 'right-full mr-2 top-1/2 -translate-y-1/2'
-                      : 'bottom-full mb-2 left-1/2 -translate-x-1/2'
-                  }`}
-                  style={{
-                    background: 'var(--color-window-title)',
-                    border: '1px solid var(--color-window-border)',
-                    color: 'var(--color-text)',
-                  }}
-                >
-                  {app.name}
-                </span>
-              </div>
-            );
-          })}
-        </div>
+                  {/* Infobulle nom */}
+                  <span
+                    className={`absolute px-2 py-1 rounded text-[10px] whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 ${
+                      vertical
+                        ? 'right-full mr-2 top-1/2 -translate-y-1/2'
+                        : 'bottom-full mb-2 left-1/2 -translate-x-1/2'
+                    }`}
+                    style={{
+                      background: 'var(--color-window-title)',
+                      border: '1px solid var(--color-window-border)',
+                      color: 'var(--color-text)',
+                    }}
+                  >
+                    {app.name}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        )}
 
         {/* Séparateur pour les réglages */}
         <span
