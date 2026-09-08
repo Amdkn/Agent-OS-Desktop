@@ -2,6 +2,286 @@ import type { CmsHierarchy, CmsAppItem } from './types';
 
 export function generateCmsHierarchy(): CmsHierarchy {
   const apps: CmsAppItem[] = [
+    // 0. AMY AGENTIC OS (7D ARMS COCKPIT)
+    {
+      id: 'agentic-os',
+      name: 'Agentic OS (Interface Amy)',
+      domaine: 'l1-life',
+      kind: 'singleton',
+      icon: '⬡',
+      description: 'Cockpit Haptique Déterministe d\'Amy (11e Docteur) • Pyramide à 7 Niveaux (1D-7D) & A.R.M.S Matrix.',
+      level: 1,
+      views: [
+        {
+          id: '7d-war-room',
+          name: '7D · War Room & Hivemind',
+          headerOrSidebar: 'header',
+          icon: '🏛️',
+          badge: 'Hivemind 7D',
+          description: 'Arbitrage multi-agents, commande /standup 24h et bascule flux audio TTS Daemon.',
+          level: 2,
+          sections: [
+            {
+              id: 'sec-hivemind-standup',
+              title: 'Standup & Consensus Agents',
+              category: 'kpi',
+              icon: '🎙️',
+              description: 'Consolidation des mémoires A2 (12WY, PARA, GTD, Ikigai).',
+              level: 3,
+              dataset: [
+                {
+                  id: 'ds-standup-24h',
+                  name: 'Consolidation /standup',
+                  type: 'standup_result',
+                  status: 'VERIFIED',
+                  icon: '⚡',
+                  description: 'Rapport d\'exécution unifié généré par la War Room.',
+                  level: 4,
+                  fields: [
+                    { key: 'score_12wy', label: 'Score 12WY', type: 'badge', value: '92%', color: 'emerald' },
+                    { key: 'audio_channel', label: 'Canal Audio', type: 'string', value: 'antigravity_tts_daemon.py' },
+                  ],
+                  actions: [
+                    { id: 'act-trigger-standup', label: 'Lancer /standup global', verb: 'POST', endpoint: '/api/tech-os/kernel-state' },
+                  ],
+                  rawAudit: { dimension: '7D', standup_status: 'ok' },
+                },
+              ],
+            },
+          ],
+        },
+        {
+          id: '6d-soul-router',
+          name: '6D · Soul & Meta-Routeur',
+          headerOrSidebar: 'sidebar',
+          icon: '📜',
+          badge: 'Ancrage DOX',
+          description: 'Aiguillage DOX (AGENTS.md local) et jauges d\'horizons Ikigai (H1 à H90).',
+          level: 2,
+          sections: [
+            {
+              id: 'sec-dox-ikigai',
+              title: 'Ancrage DOX & Horodateur Ikigai',
+              category: 'table',
+              icon: '📁',
+              description: 'Inspecteur AGENTS.md et alignement d\'horizon.',
+              level: 3,
+              dataset: [
+                {
+                  id: 'ds-dox-active',
+                  name: 'Contexte Actif DOX',
+                  type: 'dox_context',
+                  status: 'ANCHORED',
+                  icon: '📜',
+                  description: 'Répertoire maître ciblé sous A\'Space OS V3.',
+                  level: 4,
+                  fields: [
+                    { key: 'active_path', label: 'Chemin Actif', type: 'badge', value: '10_Tech_OS', color: 'orange' },
+                    { key: 'horizon', label: 'Horizon Ikigai', type: 'badge', value: 'H1', color: 'blue' },
+                  ],
+                  actions: [
+                    { id: 'act-inspect-agents-md', label: 'Inspecter AGENTS.md', verb: 'INSPECT' },
+                  ],
+                  rawAudit: { dimension: '6D', path: '10_Tech_OS/AGENTS.md' },
+                },
+              ],
+            },
+          ],
+        },
+        {
+          id: '5d-deterministic-guards',
+          name: '5D · Deterministic Guard HUD',
+          headerOrSidebar: 'sidebar',
+          icon: '🛡️',
+          badge: 'Circuit Breakers',
+          description: 'Pre-Tool Guard (DLP/Secrets), Rot Rate (> 7 jours) et Post-Build SSSF Gates.',
+          level: 2,
+          sections: [
+            {
+              id: 'sec-guard-breakers',
+              title: 'Coupe-Circuits & Guards',
+              category: 'kpi',
+              icon: '🔒',
+              description: 'Témoins d\'état des circuits-coupeurs de runtime.',
+              level: 3,
+              dataset: [
+                {
+                  id: 'ds-pretool-guard',
+                  name: 'Pre-Tool Guard (DLP)',
+                  type: 'guard_status',
+                  status: 'PASSED',
+                  icon: '🛡️',
+                  description: 'Validation de l\'absence de fuites de secrets ou tokens API.',
+                  level: 4,
+                  fields: [
+                    { key: 'dlp_status', label: 'Statut DLP', type: 'badge', value: 'CLEAN', color: 'emerald' },
+                    { key: 'violations', label: 'Violations', type: 'number', value: 0 },
+                  ],
+                  actions: [
+                    { id: 'act-toggle-dlp', label: 'Basculer Guard', verb: 'POST' },
+                  ],
+                  rawAudit: { dimension: '5D', dlp_passed: true },
+                },
+              ],
+            },
+          ],
+        },
+        {
+          id: '4d-cadence-ticker',
+          name: '4D · Cadence Ticker & Routines',
+          headerOrSidebar: 'sidebar',
+          icon: '🕒',
+          badge: 'Cycles Circadiens',
+          description: 'Scorecard 12WY, Verrou Strategic Block (Mode Deep Work 3h) et Crons Hermes 24/7.',
+          level: 2,
+          sections: [
+            {
+              id: 'sec-cadence-routines',
+              title: 'Scorecard & Timer Deep Work',
+              category: 'table',
+              icon: '🔒',
+              description: 'Widget de cadencement opérationnel.',
+              level: 3,
+              dataset: [
+                {
+                  id: 'ds-strategic-block',
+                  name: 'Strategic Block (Deep Work)',
+                  type: 'deep_work_timer',
+                  status: 'UNLOCKED',
+                  icon: '🔓',
+                  description: 'Isolation complète de l\'interface pendant les sessions de travail profond.',
+                  level: 4,
+                  fields: [
+                    { key: 'scorecard_12wy', label: 'Score 12WY', type: 'badge', value: '92%', color: 'emerald' },
+                    { key: 'next_cron', label: 'Prochain Cron', type: 'string', value: '23m 40s' },
+                  ],
+                  actions: [
+                    { id: 'act-toggle-strategic-block', label: 'Activer Mode 3h', verb: 'POST' },
+                  ],
+                  rawAudit: { dimension: '4D', strategic_block: false },
+                },
+              ],
+            },
+          ],
+        },
+        {
+          id: '3d-amy-omnibar',
+          name: '3D · Amy Omnibar & Skills Deck',
+          headerOrSidebar: 'sidebar',
+          icon: '⚡',
+          badge: 'Cmd+K Palette',
+          description: 'Palette de commandes universelle, sélecteur d\'effort (Low/Medium/High/XHigh) et substrat d\'exécution.',
+          level: 2,
+          sections: [
+            {
+              id: 'sec-omnibar-deck',
+              title: 'Skills Deck & Invocations',
+              category: 'table',
+              icon: '⌘',
+              description: 'Centre de commande inspiré du Skills Deck de Jay E.',
+              level: 3,
+              dataset: [
+                {
+                  id: 'ds-active-substrate',
+                  name: 'Substrat Modèle Actif',
+                  type: 'model_substrate',
+                  status: 'ACTIVE',
+                  icon: '🤖',
+                  description: 'Modèle de raisonnement sous-jacent sélectionné.',
+                  level: 4,
+                  fields: [
+                    { key: 'model', label: 'Modèle', type: 'badge', value: 'Claude 3.7 Sonnet', color: 'purple' },
+                    { key: 'effort', label: 'Effort', type: 'badge', value: 'MEDIUM', color: 'orange' },
+                  ],
+                  actions: [
+                    { id: 'act-execute-cmd', label: 'Exécuter Commande /', verb: 'POST' },
+                  ],
+                  rawAudit: { dimension: '3D', model: 'claude-3-7-sonnet' },
+                },
+              ],
+            },
+          ],
+        },
+        {
+          id: '2d-river-event-stream',
+          name: '2D · River Event Stream & Micro Apps',
+          headerOrSidebar: 'sidebar',
+          icon: '🌊',
+          badge: 'Webhooks & Artifacts',
+          description: 'Flux d\'événements asynchrones, Dead Letter Queue (DLQ), carrousel d\'actifs et micro-apps.',
+          level: 2,
+          sections: [
+            {
+              id: 'sec-river-stream',
+              title: 'Ticker Webhooks & Carrousel d\'Actifs',
+              category: 'table',
+              icon: '📁',
+              description: 'Zone de télémétrie asynchrone n8n / River.',
+              level: 3,
+              dataset: [
+                {
+                  id: 'ds-river-stream-events',
+                  name: 'Flux Webhooks Ingestion',
+                  type: 'webhook_stream',
+                  status: 'STREAMING',
+                  icon: '🌊',
+                  description: 'Événements absorbés en temps réel par le bus.',
+                  level: 4,
+                  fields: [
+                    { key: 'dlq_status', label: 'DLQ Status', type: 'badge', value: 'PROPRE (0)', color: 'emerald' },
+                    { key: 'artifacts_count', label: 'Actifs Indexés', type: 'number', value: 4 },
+                  ],
+                  actions: [
+                    { id: 'act-clear-dlq', label: 'Purger DLQ', verb: 'POST' },
+                  ],
+                  rawAudit: { dimension: '2D', dlq_count: 0 },
+                },
+              ],
+            },
+          ],
+        },
+        {
+          id: '1d-silver-platter-grid',
+          name: '1D · Silver Platter Grid (Data Pantry)',
+          headerOrSidebar: 'sidebar',
+          icon: '📊',
+          badge: 'Materialized Views',
+          description: 'Grille centrale de KPIs synthétiques alimentée par uc.db, sssf.db et Supabase WAL.',
+          level: 2,
+          sections: [
+            {
+              id: 'sec-silver-platter-kpis',
+              title: 'Vues Matérialisées (Zero JSON Brut)',
+              category: 'kpi',
+              icon: '💎',
+              description: 'Données pré-mâchées condensées en ratios opérationnels.',
+              level: 3,
+              dataset: [
+                {
+                  id: 'ds-wal-health',
+                  name: 'Santé Pantry WAL',
+                  type: 'wal_health',
+                  status: 'OPTIMAL',
+                  icon: '🗄️',
+                  description: 'Statut des connexions SQLite WAL locales et Supabase.',
+                  level: 4,
+                  fields: [
+                    { key: 'uc_db', label: 'uc.db WAL', type: 'badge', value: 'HEALTHY', color: 'emerald' },
+                    { key: 'sssf_db', label: 'sssf.db WAL', type: 'badge', value: 'HEALTHY', color: 'emerald' },
+                    { key: 'supabase', label: 'Supabase', type: 'badge', value: 'CONNECTED', color: 'emerald' },
+                  ],
+                  actions: [
+                    { id: 'act-refresh-pantry', label: 'Actualiser Vues', verb: 'GET', endpoint: '/api/tech-os/kernel-state' },
+                  ],
+                  rawAudit: { dimension: '1D', uc_db: 'healthy' },
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    },
+
     // 1. DOCTOR 13 KERNEL
     {
       id: 'doctor-13-kernel',
