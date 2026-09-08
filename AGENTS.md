@@ -32,6 +32,7 @@
 - **Pilier 5 (Design System & 12 Thèmes)** : 12 thèmes canoniques portés de BusinessOS, injection de tokens CSS dynamiques via `:root`, centre de notifications avec unread badge, toasts interactifs, et Launchpad AppDrawer.
 - **Pilier 6 (Architecture AppLayout & Résilience)** : Cadre d'application responsive avec sidebar rétractable, breadcrumbs dans la barre de titre de fenêtre, décodeur défensif d'enveloppe de session et filet de capture d'erreurs globales avec réinitialisation d'urgence `?reset=1`.
 - **Pilier 7 (Dock V3 aux Standards BusinessOS & Déploiement GitHub)** :
+  - **Comportement Dynamique Conforme BusinessOS** : Le dock n'affiche plus la liste statique des applications installées (réservées au bureau et au Launchpad) ; seules les applications possédant au moins une fenêtre ouverte apparaissent dynamiquement et disparaissent à la fermeture, entourées des 3 éléments permanents : **Launchpad** (`🚀`), **CMS Hiérarchique V2** (`🗂️`) et **Réglages du Dock** (`Settings2`).
   - **20 Skins UI/UX Pro Max** portés de BusinessOS (`dockSkins.ts` : glass, clay, brutalism, cyberpunk, retro, macos, win95, solarpunk...).
   - **Placement Réversible à Droite** (`bottom` ou `right`), modifiant dynamiquement la zone de travail utile du bureau (`cadreBureau()`).
   - **Magnification Progressive Fish-Eye** : Transition fluide au survol calculée par distance (1.28x au centre, 1.14x au premier rang, 1.05x au second rang).
