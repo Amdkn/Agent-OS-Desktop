@@ -584,6 +584,68 @@ export function techOsApi(): Plugin {
           return;
         }
 
+        // 16. PostHog Observatory : Unified Event Stream, LLM Tracing, Replay & Flags
+        if (url === '/observability' && req.method === 'GET') {
+          const script = path.join(KERNEL_DIR, 'posthog_observability.py');
+          exec(`python "${script}"`, { timeout: 15000 }, (err, stdout) => {
+            if (err || !stdout) {
+              res.statusCode = 500;
+              res.end(JSON.stringify({ ok: false, error: 'Erreur moteur PostHog Observatory' }));
+              return;
+            }
+            res.end(stdout);
+          });
+          return;
+        }
+
+        if (url === '/observability/toggle-flag' && req.method === 'POST') {
+          let body = '';
+          req.on('data', (chunk) => (body += chunk));
+          req.on('end', () => {
+            try {
+              const data = JSON.parse(body);
+              const flagId = data.flagId || '';
+              const script = path.join(KERNEL_DIR, 'posthog_observability.py');
+              exec(`python "${script}" toggle-flag ${flagId}`, { timeout: 10000 }, (err, stdout) => {
+                if (err || !stdout) {
+                  res.statusCode = 500;
+                  res.end(JSON.stringify({ ok: false, error: 'Erreur bascule flag' }));
+                  return;
+                }
+                res.end(stdout);
+              });
+            } catch (e: any) {
+              res.statusCode = 400;
+              res.end(JSON.stringify({ ok: false, error: e.message }));
+            }
+          });
+          return;
+        }
+
+        if (url === '/observability/remediate' && req.method === 'POST') {
+          let body = '';
+          req.on('data', (chunk) => (body += chunk));
+          req.on('end', () => {
+            try {
+              const data = JSON.parse(body);
+              const dlqId = data.dlqId || '';
+              const script = path.join(KERNEL_DIR, 'posthog_observability.py');
+              exec(`python "${script}" remediate ${dlqId}`, { timeout: 10000 }, (err, stdout) => {
+                if (err || !stdout) {
+                  res.statusCode = 500;
+                  res.end(JSON.stringify({ ok: false, error: 'Erreur remédiation DLQ' }));
+                  return;
+                }
+                res.end(stdout);
+              });
+            } catch (e: any) {
+              res.statusCode = 400;
+              res.end(JSON.stringify({ ok: false, error: e.message }));
+            }
+          });
+          return;
+        }
+
         res.statusCode = 404;
         res.end(JSON.stringify({ ok: false, error: 'Endpoint Tech OS introuvable' }));
       });
