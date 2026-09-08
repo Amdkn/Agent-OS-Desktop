@@ -1,0 +1,20 @@
+{
+  "_source": "ARBITRAGE_DOCTEURS-20260901.md (consensus 3/3: libelle seul, slug inchange)",
+  "yaz_spec_l0": "Yaz - Spec L0",
+  "ryan_build_l0": "Ryan - Build L0",
+  "graham_spawn_l0": "Graham - Spawn L0",
+  "doctor13_review_l0": "13e Docteur - Review L0",
+  "rick_governance_l0": "Rick - Gouvernance L0",
+  "kernel_builder_a": "Jerry - Constructeur A",
+  "kernel_copier_b": "Morty - Copieur B",
+  "kernel_controller_c": "Beth - Contrôleur C",
+  "amy_spec_l1": "Amy - Spec L1",
+  "rory_build_l1": "Rory - Build L1",
+  "river_spawn_l1": "River - Spawn L1",
+  "doctor11_review_l1": "11e Docteur - Review L1",
+  "clara_spec_l2": "Clara - Spec L2",
+  "nardole_build_l2": "Nardole - Build L2",
+  "bill_spawn_l2": "Bill - Spawn L2",
+  "doctor12_review_l2": "12e Docteur - Review L2",
+  "donna_dlq": "Donna - DLQ"
+}

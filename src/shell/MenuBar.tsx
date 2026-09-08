@@ -1,16 +1,13 @@
-/**
- * Menu bar — the top chrome.
- *
- * Single global menu. Left: app name. Center: a few top-level menus that
- * show their dropdown on hover. Right: a clock.
- *
- * The "Fichier" menu is the only one wired up — it owns the export/import
- * actions. The rest are placeholders so the bar reads as a real menubar.
- */
-
 import { useEffect, useState } from 'react';
 import { useStorage } from '../storage/useStorage';
 import { downloadSnapshot, importSnapshotFromFile } from '../storage/backup';
+import { useShell } from './store';
+import { WALLPAPERS } from './wallpaper';
+import { exportDesktopTemplate, importDesktopTemplate } from '../blueprints/templateManager';
+import { cadreBureau } from './Window';
+import { NotificationsDropdown } from './NotificationsDropdown';
+import { useThemeStore } from '../themes/store';
+import { THEME_META } from '../themes/tokens';
 
 function useClock() {
   const [now, setNow] = useState(() => new Date());
@@ -25,6 +22,13 @@ export function MenuBar() {
   const now = useClock();
   const adapter = useStorage();
   const [open, setOpen] = useState<string | null>(null);
+  const wallpaperId = useShell((s) => s.wallpaperId);
+  const setWallpaper = useShell((s) => s.setWallpaper);
+  const workspaces = useShell((s) => s.workspaces);
+  const activeWorkspaceId = useShell((s) => s.activeWorkspaceId);
+  const switchWorkspace = useShell((s) => s.switchWorkspace);
+  const tileWindows = useShell((s) => s.tileWindows);
+  const toggleCommandPalette = useShell((s) => s.toggleCommandPalette);
 
   const handleExport = async () => {
     setOpen(null);
@@ -43,17 +47,37 @@ export function MenuBar() {
     input.click();
   };
 
+  const handleImportTemplate = () => {
+    setOpen(null);
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'application/json';
+    input.onchange = () => {
+      const f = input.files?.[0];
+      if (f) {
+        importDesktopTemplate(f).then((res) => {
+          alert(res.message);
+        }).catch(() => undefined);
+      }
+    };
+    input.click();
+  };
+
   const menus = [
     {
       label: 'Agent OS',
       items: [
-        { label: 'à propos de Agent OS', action: () => alert('Agent OS V1 — bureau libre') },
+        { label: 'à propos de Agent OS V3', action: () => alert('Agent OS V3 — Template Reproductible de Web Desktop & Standard Business OS (Loi L0 Rick)') },
+        { label: 'Ouvrir Command Palette (⌘K)', action: () => { toggleCommandPalette(); setOpen(null); } },
       ],
     },
     {
       label: 'Fichier',
       items: [
-        { label: 'Exporter un instantané…', action: handleExport },
+        { label: 'Exporter le Template de Bureau V3 (JSON)…', action: () => { exportDesktopTemplate(); setOpen(null); } },
+        { label: 'Importer un Template de Bureau V3 (JSON)…', action: handleImportTemplate },
+        { label: '—', action: () => undefined },
+        { label: 'Exporter un instantané SQLite/Stockage…', action: handleExport },
         { label: 'Importer un instantané…', action: handleImport },
       ],
     },
@@ -66,13 +90,38 @@ export function MenuBar() {
     {
       label: 'Affichage',
       items: [
+        { label: 'Command Palette (⌘K / Ctrl+K)', action: () => { toggleCommandPalette(); setOpen(null); } },
+        { label: 'Vue CMS Hiérarchique (Agent OS V2)', action: () => { useShell.getState().toggleCms(); setOpen(null); } },
+        { label: 'Vue par domaines (Life OS)', action: () => { useShell.getState().toggleDomaines(); setOpen(null); } },
         { label: '—', action: () => undefined },
+        ...WALLPAPERS.map((w) => ({
+          label: `${wallpaperId === w.id ? '✓ ' : '   '}${w.label}`,
+          action: () => {
+            setWallpaper(w.id);
+            setOpen(null);
+          },
+        })),
+      ],
+    },
+    {
+      label: 'Thème',
+      items: [
+        ...THEME_META.map((t) => ({
+          label: `${useThemeStore.getState().globalTheme === t.id ? '✓ ' : '   '}${t.name} (${t.mood})`,
+          action: () => {
+            useThemeStore.getState().setGlobalTheme(t.id);
+            setOpen(null);
+          },
+        })),
       ],
     },
     {
       label: 'Fenêtre',
       items: [
-        { label: '—', action: () => undefined },
+        { label: 'Scinder Horizontalement (50/50)', action: () => { tileWindows('split-h', cadreBureau()); setOpen(null); } },
+        { label: 'Scinder Verticalement (50/50)', action: () => { tileWindows('split-v', cadreBureau()); setOpen(null); } },
+        { label: 'Grille 4 Quadrants (25%)', action: () => { tileWindows('grid-4', cadreBureau()); setOpen(null); } },
+        { label: 'Réorganiser en Cascade', action: () => { tileWindows('cascade', cadreBureau()); setOpen(null); } },
       ],
     },
   ];
@@ -100,10 +149,43 @@ export function MenuBar() {
           {m.label}
         </button>
       ))}
+
+      {/* Sélecteur de Workspaces V3 */}
+      <div className="flex items-center gap-1 mx-2 px-1 py-0.5 rounded-lg bg-black/40 border border-white/10 font-mono text-[11px]">
+        {workspaces.map((ws) => (
+          <button
+            key={ws.id}
+            onClick={() => switchWorkspace(ws.id)}
+            className={`px-2 py-0.5 rounded transition-all flex items-center gap-1 ${
+              activeWorkspaceId === ws.id
+                ? 'bg-[var(--color-accent)] text-black font-bold shadow-sm'
+                : 'text-[var(--color-text-dim)] hover:text-white hover:bg-white/10'
+            }`}
+          >
+            <span>{ws.icon}</span>
+            <span className="hidden sm:inline">{ws.name}</span>
+          </button>
+        ))}
+      </div>
+
       <div className="flex-1" />
+      <button
+        onClick={toggleCommandPalette}
+        title="Ouvrir la Command Palette universelle (Ctrl+K / ⌘K)"
+        className="flex items-center gap-1.5 px-2 py-0.5 rounded bg-white/5 hover:bg-white/10 border border-white/10 text-[var(--color-text-dim)] hover:text-white transition-colors mr-2 cursor-pointer"
+      >
+        <span>🔍</span>
+        <span className="hidden md:inline font-mono text-[10px]">⌘K</span>
+      </button>
+
+      <div className="mr-2 flex items-center">
+        <NotificationsDropdown />
+      </div>
+
       <div className="font-mono text-[10px] text-[var(--color-text-dim)] mr-2">
         {adapter.label}
       </div>
+
       <div className="font-mono text-[11px] text-[var(--color-text-dim)]">
         {now.toLocaleString('fr-FR', {
           weekday: 'short',

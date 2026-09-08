@@ -6,6 +6,38 @@
 export type WindowId = string;
 export type AppId = string;
 
+/* -------------------------- Domaines (gabarit Life OS) -------------------------- */
+
+/**
+ * Les trois domaines d'Agent OS, sur le gabarit de Life OS / Business OS :
+ *   - L0 TECH     : l'infrastructure — observateurs, mémoires, passerelles, harness.
+ *   - L1 LIFE     : le noyau personnel — Life OS 2026, Corpus, Ikigai.
+ *   - L2 BUSINESS : le noyau économique — Coach OS, SaaS Builder, Marketplace.
+ * Chaque app déclare son domaine dans son manifest ; le shell ne connaît
+ * rien de nommé — il ne fait que grouper ce qui s'est déclaré.
+ */
+export type DomaineId = 'l0-tech' | 'l1-life' | 'l2-business';
+
+export interface DomaineInfo {
+  id: DomaineId;
+  /** Nom affiché, gabarit Life OS : PASSION / MISSION / ... */
+  nom: string;
+  /** Horizon Life OS — H1 : tenir aujourd'hui, H3 : tenir 10 ans. */
+  horizon: 'H1' | 'H3';
+  /** Une ligne qui dit pourquoi ce domaine existe. */
+  description: string;
+  icon: string;
+}
+
+/** Ports irréversibles — le bandeau Beth les affiche en permanence. */
+export const PORTES_IRREVERSIBLES: string[] = [
+  'CA racine',
+  'push dépôt divergent',
+  'virement',
+  'suppression de données',
+  'confiance: machine → confiance: humain',
+];
+
 /** A registry entry for an app discoverable in the disk-based apps folder. */
 export interface AppManifest {
   id: AppId;
@@ -14,6 +46,16 @@ export interface AppManifest {
   kind: 'singleton' | 'multi';
   description: string;
   icon: string;
+  /** Domaine d'appartenance (gabarit Life OS). Optionnel pour compat : le regroupement le place alors en L0 TECH. */
+  domaine?: DomaineId;
+  /** Catégorie Business OS / CMS */
+  category?: string;
+  /** Ordre d'ancrage dans le Dock (slot 1 à N) */
+  dockSlot?: number;
+  /** Si true, l'application est invisible dans le Dock et n'apparaît que dans l'AppDrawer */
+  hidden?: boolean;
+  /** Couleur d'accent optionnelle propre à l'application */
+  accentColor?: string;
 }
 
 /** A live window on the desktop. */
@@ -29,9 +71,29 @@ export interface WindowState {
   y: number;
   w: number;
   h: number;
+  /** Plein ecran. La geometrie d'avant est gardee pour pouvoir revenir. */
+  maximized?: boolean;
+  restore?: { x: number; y: number; w: number; h: number };
+  /** Épinglage Always-on-top (Mode PiP) */
+  pinned?: boolean;
+  /** Type d'ancrage actif */
+  snapped?: 'left' | 'right' | 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' | 'maximize' | null;
+  /** Identifiant du workspace auquel appartient la fenêtre */
+  workspaceId?: string;
   /** Saved per-instance — apps that remember their view. */
   payload?: Record<string, unknown>;
 }
+
+/* -------------------------- V3 Workspaces -------------------------- */
+
+export interface WorkspaceInfo {
+  id: string;
+  name: string;
+  icon: string;
+  domaine?: DomaineId;
+  description?: string;
+}
+
 
 /* -------------------------- Storage contracts -------------------------- */
 

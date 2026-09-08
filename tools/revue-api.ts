@@ -192,7 +192,8 @@ export function revueApi(): Plugin {
           }
           const fm = frontmatter(t);
           if (!fm) return json(res, 400, { erreur: 'pas de frontmatter OKF' });
-          if (fm.includes(`human:${qui}`)) {
+          const vb = /verified:([\s\S]*?)(?:\n\w|$)/.exec(fm);
+          if (vb && vb[1].includes(`human:${qui}`)) {
             return json(res, 200, { deja: true, chemin });
           }
           const quand = new Date().toISOString().replace(/\.\d+/, '');

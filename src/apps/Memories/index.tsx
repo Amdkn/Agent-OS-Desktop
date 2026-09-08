@@ -247,4 +247,5 @@ export const manifest = {
   kind: 'multi' as const,
   description: 'Notes durables. Backup en un clic.',
   icon: '✎',
+  domaine: 'l0-tech',
 };

@@ -15,7 +15,6 @@
 import type { AppManifest } from '../types';
 import { ObserversApp } from './Observers';
 import { MemoriesApp } from './Memories';
-import { ExternalApp } from './External';
 
 interface AppModule {
   manifest?: AppManifest;
@@ -46,17 +45,6 @@ const builtins: Array<{ id: string; component: unknown; manifest: AppManifest }>
       kind: 'multi',
       description: 'Notes durables. Backup en un clic.',
       icon: '✎',
-    },
-  },
-  {
-    id: 'external',
-    component: ExternalApp,
-    manifest: {
-      id: 'external',
-      name: 'Cadre externe',
-      kind: 'multi',
-      description: 'Encapsule une interface qui tourne ailleurs.',
-      icon: '▣',
     },
   },
 ];

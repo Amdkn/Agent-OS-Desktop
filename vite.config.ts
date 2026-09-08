@@ -5,6 +5,8 @@ import { corpusApi } from './tools/corpus-api';
 import { armsApi } from './tools/arms-api';
 import { revueApi } from './tools/revue-api';
 import { routeursApi } from './tools/routeurs-api';
+import { workspaceApi } from './tools/workspace-api';
+import { techOsApi } from './tools/tech-os-api';
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -52,7 +54,7 @@ function gauntletApi() {
 }
 
 export default defineConfig({
-  plugins: [react(), tailwindcss(), gauntletApi(), corpusApi(), armsApi(), revueApi(), routeursApi()],
+  plugins: [react(), tailwindcss(), gauntletApi(), corpusApi(), armsApi(), revueApi(), routeursApi(), workspaceApi(), techOsApi()],
   server: {
     host: '127.0.0.1',
     // 5555 plutot que 5180 : un port qu'on retient sans le chercher.
@@ -60,6 +62,18 @@ export default defineConfig({
     // pas un demarrage silencieux sur 5556 qui casserait le raccourci.
     port: 5555,
     strictPort: true,
+    watch: {
+      ignored: [
+        '**/node_modules/**',
+        '**/.git/**',
+        '**/_cold_archive/**',
+        '**/_ARCHIVE_*/**',
+        '**/sessions_zombies/**',
+        '**/00_Amadeus/10_Observers/**',
+        '**/00_Amadeus/20_Harness/**',
+        '**/openwiki/**',
+      ],
+    },
   },
   build: {
     target: 'es2022',

@@ -100,4 +100,5 @@ export const manifest = {
   kind: 'multi' as const,
   description: 'Liste des onze observateurs.',
   icon: '◉',
+  domaine: 'l0-tech',
 };

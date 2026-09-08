@@ -329,20 +329,27 @@ function artefacts(limite = 24) {
  *  MCP sans lesquels l'appel rend « Prompt is too long » avant de commencer. */
 function lancerSkill(nom: string, modele: string): Promise<{ ok: boolean; sortie: string }> {
   return new Promise((resolve) => {
-    const permis = new Set(lire(SKILLS).map((e) => e.name));
-    if (!permis.has(nom)) {
-      return resolve({ ok: false, sortie: `skill inconnue : ${nom}` });
+    try {
+      const permis = new Set(lire(SKILLS).map((e) => e.name));
+      if (!permis.has(nom)) {
+        return resolve({ ok: false, sortie: `skill inconnue : ${nom}` });
+      }
+      const cmd = path.join(MAISON, '.claude', 'custom-models',
+        modele === 'glm' ? 'claude-glm.cmd' : 'claude-glm.cmd');
+      if (!fs.existsSync(cmd)) {
+        return resolve({ ok: false, sortie: `lanceur introuvable : ${cmd}` });
+      }
+      execFile('cmd.exe',
+        ['/c', cmd, '--dangerously-skip-permissions', '--strict-mcp-config',
+         '--mcp-config', '{"mcpServers":{}}', '-p', `/${nom}`],
+        { timeout: 300000, maxBuffer: 8 << 20 },
+        (err, out, errOut) => resolve({
+          ok: !err,
+          sortie: (out || errOut || String(err ?? '')).slice(-4000),
+        }));
+    } catch (err: unknown) {
+      resolve({ ok: false, sortie: String(err) });
     }
-    const cmd = path.join(MAISON, '.claude', 'custom-models',
-      modele === 'glm' ? 'claude-glm.cmd' : 'claude-glm.cmd');
-    execFile(cmd,
-      ['--dangerously-skip-permissions', '--strict-mcp-config',
-       '--mcp-config', '{"mcpServers":{}}', '-p', `/${nom}`],
-      { timeout: 300000, maxBuffer: 8 << 20 },
-      (err, out, errOut) => resolve({
-        ok: !err,
-        sortie: (out || errOut || String(err ?? '')).slice(-4000),
-      }));
   });
 }
 

@@ -179,3 +179,5 @@ export const manifest = {
   description: 'Encapsule une interface qui tourne ailleurs.',
   icon: '▣',
 };
+
+export const App = ExternalApp;
