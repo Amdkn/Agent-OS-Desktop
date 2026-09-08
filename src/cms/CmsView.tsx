@@ -1,6 +1,6 @@
-import React, { useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { generateCmsHierarchy } from './hierarchy';
-import type { CmsAppItem, CmsPageView, CmsCardSection, CmsDatasetRow, CmsLevel } from './types';
+import type { CmsCardSection, CmsLevel } from './types';
 import { useShell } from '../shell/store';
 
 export function CmsView() {
@@ -11,7 +11,6 @@ export function CmsView() {
   // Navigation State across 7 levels
   const [selectedAppId, setSelectedAppId] = useState<string>(hierarchy.apps[0]?.id || 'doctor-13-kernel');
   const [selectedViewId, setSelectedViewId] = useState<string>('docteur');
-  const [selectedSectionId, setSelectedSectionId] = useState<string | null>(null);
   const [selectedRowId, setSelectedRowId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [activeLevelFilter, setActiveLevelFilter] = useState<CmsLevel | 'all'>('all');
@@ -145,7 +144,7 @@ export function CmsView() {
           body: method === 'POST' ? JSON.stringify(action.payloadTemplate || {}) : undefined,
         });
         if (res.ok) {
-          const data = await res.json().catch(() => ({ ok: true }));
+          await res.json().catch(() => ({ ok: true }));
           setActionStatus({
             id: action.id,
             msg: `✓ ${action.label} exécuté avec succès (HTTP 200)`,
@@ -308,7 +307,6 @@ export function CmsView() {
                   onClick={() => {
                     setSelectedAppId(app.id);
                     setSelectedViewId(app.views[0]?.id || '');
-                    setSelectedSectionId(null);
                     setSelectedRowId(null);
                   }}
                   className={`w-full text-left p-2.5 rounded-xl border transition-all flex items-start gap-2.5 ${
@@ -359,7 +357,6 @@ export function CmsView() {
                   key={v.id}
                   onClick={() => {
                     setSelectedViewId(v.id);
-                    setSelectedSectionId(null);
                     setSelectedRowId(null);
                   }}
                   className={`w-full text-left p-2.5 rounded-xl border transition-all flex items-start gap-2.5 ${

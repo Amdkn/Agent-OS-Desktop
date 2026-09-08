@@ -331,7 +331,7 @@ export function techOsApi(): Plugin {
                 targetScript = path.join(KERNEL_DIR, '_test_plafond.py');
               } else {
                 const pyCmd = "import sqlite3; conn = sqlite3.connect(r'" + UC_DB + "'); c = conn.cursor(); c.execute(\"INSERT INTO event (work_id, event_type, details, created_at) VALUES (0, 'subagent_invoked', 'Agent: " + agentId + "', datetime('now'))\"); conn.commit(); print('Audit trace saved for " + agentId + "')";
-                exec('python -c "' + pyCmd + '"', (err, stdout) => {
+                exec('python -c "' + pyCmd + '"', (_err, _stdout) => {
                   const execTime = Date.now() - startTime;
                   res.end(
                     JSON.stringify({

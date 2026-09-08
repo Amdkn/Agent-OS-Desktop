@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import type { AppManifest } from '../../types';
 import { useShell } from '../../shell/store';
 
@@ -371,7 +371,9 @@ export function Doctor13KernelApp({ payload }: { payload?: Record<string, unknow
                 </div>
                 <div>
                   <h2 className="text-base font-bold text-white">Yas · Télémétrie & Surveillance Système</h2>
-                  <p className="text-xs text-slate-400">Heartbeat 60s · Métriques CPU, RAM & Ports Vivants</p>
+                  <p className="text-xs text-slate-400">
+                    Heartbeat 60s · Métriques CPU, RAM & Ports Vivants {lastCheck ? `(Dernier scan : ${lastCheck})` : ''}
+                  </p>
                 </div>
               </div>
               <div className="flex gap-2">

@@ -77,7 +77,7 @@ export interface WindowState {
   /** Épinglage Always-on-top (Mode PiP) */
   pinned?: boolean;
   /** Type d'ancrage actif */
-  snapped?: 'left' | 'right' | 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' | 'maximize' | null;
+  snapped?: 'left' | 'right' | 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' | 'maximize' | 'center' | null;
   /** Identifiant du workspace auquel appartient la fenêtre */
   workspaceId?: string;
   /** Saved per-instance — apps that remember their view. */

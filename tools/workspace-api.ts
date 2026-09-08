@@ -13,7 +13,6 @@
 
 import fs from 'node:fs';
 import http from 'node:http';
-import path from 'node:path';
 import type { Plugin, ViteDevServer } from 'vite';
 
 const GATEWAY = { host: '127.0.0.1', port: 8642 };

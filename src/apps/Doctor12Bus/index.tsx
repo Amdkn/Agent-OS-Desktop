@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import type { AppManifest } from '../../types';
 import { useShell } from '../../shell/store';
 
@@ -40,7 +40,7 @@ export function Doctor12BusApp({ payload }: { payload?: Record<string, unknown> 
   const [nardoleStatus, setNardoleStatus] = useState<string | null>(null);
 
   // Bill State
-  const [signals, setSignals] = useState([
+  const [signals] = useState([
     { id: 1, title: 'Demande accrue d\'architectures Graph-Native (Semantica)', source: 'arXiv & Trends', impact: 'Élevé', status: 'VALIDÉ' },
     { id: 2, title: 'Incompatibilité routeurs intermédiaires avec Auth native', source: 'Audit 9Router/OmniRoute', impact: 'Critique', status: 'RÉSOLU' },
     { id: 3, title: 'Compression 12WY en micro-cycles 12h pour agents nano', source: 'Sessions Amad', impact: 'Stratégique', status: 'ACTIF' },

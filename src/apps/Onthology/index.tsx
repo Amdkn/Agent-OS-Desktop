@@ -166,7 +166,6 @@ export function OnthologyApp({ payload }: { payload?: Record<string, unknown> } 
   });
 
   // Contour State
-  const [contourData, setContourData] = useState<any>(null);
   const [selectedContourClass, setSelectedContourClass] = useState<string>('all');
 
   // Vertex / AIP State
@@ -197,13 +196,6 @@ export function OnthologyApp({ payload }: { payload?: Record<string, unknown> } 
         }
       })
       .catch((err) => console.error('Erreur chargement ontologie:', err));
-
-    fetch('/api/tech-os/osdk/contour')
-      .then((r) => r.json())
-      .then((data) => {
-        if (data.ok) setContourData(data);
-      })
-      .catch((err) => console.error('Erreur chargement Contour:', err));
   }, []);
 
   const handleRunAip = async (promptToRun?: string) => {

@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { useShell } from './store';
 import { generateCmsHierarchy } from '../cms/hierarchy';
-import type { CmsAction, CmsAppItem, CmsPageView } from '../cms/types';
+import type { CmsAppItem, CmsPageView } from '../cms/types';
 import { cadreBureau } from './Window';
 
 interface PaletteItem {
@@ -200,7 +200,7 @@ export function CommandPalette() {
     const collectActions = (appItem: CmsAppItem, view: CmsPageView) => {
       for (const sec of view.sections) {
         for (const row of sec.dataset) {
-          for (const act of row.actions) {
+          for (const act of (row.actions ?? [])) {
             items.push({
               id: `act-${act.id}`,
               category: 'action',

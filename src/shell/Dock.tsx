@@ -19,7 +19,6 @@ export const LARGEUR_DOCK = 54;
 
 export function Dock() {
   const apps = useShell((s) => s.apps);
-  const open = useShell((s) => s.openWindow);
   const openWindows = useOrderedWindows();
   const focused = useShell((s) => s.focused);
   const focusWindow = useShell((s) => s.focusWindow);
