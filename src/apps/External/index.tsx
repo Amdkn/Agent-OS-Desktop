@@ -20,6 +20,7 @@ interface Target {
 }
 
 const KNOWN: Target[] = [
+  { id: 'sssf', label: 'Software Factory (Ryan)', url: 'http://127.0.0.1:4600' },
   { id: 'gateway', label: 'agentgateway console', url: 'http://127.0.0.1:15000/ui' },
   { id: 'observatoire', label: 'Observatoire', url: 'http://127.0.0.1:8787' },
 ];

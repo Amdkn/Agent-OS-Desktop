@@ -16,6 +16,8 @@ import type { Plugin, ViteDevServer } from 'vite';
 const TECH_OS_DIR = path.resolve('C:/Users/amado/ASpace_OS_V3/10_Tech_OS');
 const KERNEL_DIR = path.join(TECH_OS_DIR, 'kernel');
 const UC_DB = path.join(KERNEL_DIR, 'uc.db');
+const SSSF_ROOT = path.resolve('C:/Users/amado/super-simple-software-factory');
+const SSSF_DB = path.join(SSSF_ROOT, 'adws', 'adw_data', 'sssf.db');
 
 export function techOsApi(): Plugin {
   return {
@@ -637,6 +639,90 @@ export function techOsApi(): Plugin {
                   return;
                 }
                 res.end(stdout);
+              });
+            } catch (e: any) {
+              res.statusCode = 400;
+              res.end(JSON.stringify({ ok: false, error: e.message }));
+            }
+          });
+          return;
+        }
+
+        if (url === '/factory/health' && req.method === 'GET') {
+          const script = path.join(KERNEL_DIR, 'ryan_factory_engine.py');
+          exec(`python "${script}" health`, (err, stdout) => {
+            if (err || !stdout) {
+              res.statusCode = 500;
+              res.end(JSON.stringify({ ok: false, error: 'Erreur lecture sssf.db' }));
+              return;
+            }
+            res.end(stdout);
+          });
+          return;
+        }
+
+        if (url === '/factory/sessions' && req.method === 'GET') {
+          const script = path.join(KERNEL_DIR, 'ryan_factory_engine.py');
+          exec(`python "${script}" sessions`, (err, stdout) => {
+            if (err || !stdout) {
+              res.statusCode = 500;
+              res.end(JSON.stringify({ ok: false, error: 'Erreur sessions SSSF' }));
+              return;
+            }
+            res.end(stdout);
+          });
+          return;
+        }
+
+        if (url.startsWith('/factory/sessions/') && req.method === 'GET') {
+          const adwId = url.replace('/factory/sessions/', '').split('/')[0];
+          const subRoute = url.replace(`/factory/sessions/${adwId}`, '');
+          const script = path.join(KERNEL_DIR, 'ryan_factory_engine.py');
+
+          if (subRoute === '/events') {
+            exec(`python "${script}" events ${adwId}`, (err, stdout) => {
+              if (err || !stdout) {
+                res.statusCode = 500;
+                res.end(JSON.stringify({ ok: false, error: 'Erreur events SSSF' }));
+                return;
+              }
+              res.end(stdout);
+            });
+            return;
+          }
+
+          exec(`python "${script}" detail ${adwId}`, (err, stdout) => {
+            if (err || !stdout) {
+              res.statusCode = 500;
+              res.end(JSON.stringify({ ok: false, error: 'Erreur détail session' }));
+              return;
+            }
+            res.end(stdout);
+          });
+          return;
+        }
+
+        if (url === '/factory/run-workflow' && req.method === 'POST') {
+          let body = '';
+          req.on('data', (chunk) => (body += chunk));
+          req.on('end', () => {
+            try {
+              const data = JSON.parse(body);
+              const workflow = data.workflow || 'adw_scout.py';
+              const prompt = (data.prompt || 'summary of current codebase').replace(/"/g, '\\"');
+              const cmd = `python adws/${workflow} "${prompt}"`;
+              const startTime = Date.now();
+              exec(cmd, { cwd: SSSF_ROOT, timeout: 60000 }, (err, stdout, stderr) => {
+                const execTime = Date.now() - startTime;
+                res.end(JSON.stringify({
+                  ok: !err,
+                  workflow,
+                  command: cmd,
+                  stdout: stdout || 'Workflow terminé.',
+                  stderr: stderr || '',
+                  executionTimeMs: execTime,
+                  timestampEdt: getNowEdt(),
+                }));
               });
             } catch (e: any) {
               res.statusCode = 400;
