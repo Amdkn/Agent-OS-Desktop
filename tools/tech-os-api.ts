@@ -1,6 +1,6 @@
 /**
  * API Tech OS — Moteur backend pour Agent OS (Port 5555)
- * 
+ *
  * Expose :
  *  - GET /api/tech-os/workflows : Liste et topologie de tous les pipelines Python Tech OS
  *  - POST /api/tech-os/execute : Exécution directe/dry-run d'un pipeline Python
@@ -17,7 +17,6 @@ const TECH_OS_DIR = path.resolve('C:/Users/amado/ASpace_OS_V3/10_Tech_OS');
 const KERNEL_DIR = path.join(TECH_OS_DIR, 'kernel');
 const UC_DB = path.join(KERNEL_DIR, 'uc.db');
 const SSSF_ROOT = path.resolve('C:/Users/amado/super-simple-software-factory');
-const SSSF_DB = path.join(SSSF_ROOT, 'adws', 'adw_data', 'sssf.db');
 
 export function techOsApi(): Plugin {
   return {
@@ -66,7 +65,7 @@ export function techOsApi(): Plugin {
               try {
                 const parsed = JSON.parse(stdout);
                 res.end(JSON.stringify({ ok: true, ...parsed }));
-              } catch (parseErr) {
+              } catch {
                 res.end(JSON.stringify({ ok: false, error: 'JSON parse error', works: [], events: [] }));
               }
             }
@@ -146,7 +145,6 @@ export function techOsApi(): Plugin {
           const pyCmd = "import json, os, psutil, datetime; mem = psutil.virtual_memory(); cpu = psutil.cpu_percent(interval=0.1); print(json.dumps({'cpu_percent': cpu, 'ram_used_mb': round((mem.total - mem.available)/(1024*1024)), 'ram_total_mb': round(mem.total/(1024*1024)), 'ram_percent': mem.percent, 'timestamp': datetime.datetime.now().isoformat()}))";
           exec('python -c "' + pyCmd + '"', (err, stdout) => {
             if (err) {
-              // fallback sans psutil
               res.end(JSON.stringify({
                 ok: true,
                 telemetry: {
@@ -333,7 +331,7 @@ export function techOsApi(): Plugin {
                 targetScript = path.join(KERNEL_DIR, '_test_plafond.py');
               } else {
                 const pyCmd = "import sqlite3; conn = sqlite3.connect(r'" + UC_DB + "'); c = conn.cursor(); c.execute(\"INSERT INTO event (work_id, event_type, details, created_at) VALUES (0, 'subagent_invoked', 'Agent: " + agentId + "', datetime('now'))\"); conn.commit(); print('Audit trace saved for " + agentId + "')";
-                exec('python -c "' + pyCmd + '"', (_err, _stdout) => {
+                exec('python -c "' + pyCmd + '"', (_err) => {
                   const execTime = Date.now() - startTime;
                   res.end(
                     JSON.stringify({
@@ -857,7 +855,7 @@ function getWorkflowsDefinition() {
           name: 'Ruban Parsing & Lint',
           type: 'filter',
           badge: 'Zero Debt Check',
-          desc: 'Vérifie les 4 sections obligatoires (Objectif, Critère, Périmètre, Interdits) et bannit tout TODO/TBD.',
+          desc: 'Vérifie les 4 sections obligatoires (Objectif, Critères, Périmètre, Interdits) et bannit tout TODO/TBD.',
           x: 360,
           y: 140,
           status: 'success',
@@ -1105,7 +1103,7 @@ function getWorkflowsDefinition() {
           name: 'Exécution des Commandes de Preuve',
           type: 'transformer',
           badge: 'Execution Sandbox',
-          desc: 'Exécute les assertions entre backticks et contrôle que le code de sortie est strictement rc=0.',
+          desc: 'Exécute les assertions entre backticks et contrôle que le code de sortie est strictly rc=0.',
           x: 650,
           y: 150,
           status: 'success',

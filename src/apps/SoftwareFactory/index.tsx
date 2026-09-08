@@ -6,13 +6,10 @@ import {
   RotateCcw,
   CheckCircle2,
   AlertCircle,
-  Clock,
   Layers,
   Terminal,
   ExternalLink,
-  ShieldCheck,
-  ChevronRight,
-  Maximize2
+  ShieldCheck
 } from 'lucide-react';
 
 export const manifest: AppManifest = {
@@ -93,7 +90,6 @@ export function App() {
   const [sessions, setSessions] = useState<SSSFSession[]>([]);
   const [selectedSession, setSelectedSession] = useState<any | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
 
   // Workflow execution state
   const [selectedWorkflow, setSelectedWorkflow] = useState(AVAILABLE_WORKFLOWS[0].id);
@@ -104,7 +100,6 @@ export function App() {
   const fetchHealthAndSessions = async () => {
     try {
       setLoading(true);
-      setError(null);
       const [healthRes, sessionsRes] = await Promise.all([
         fetch('/api/tech-os/factory/health'),
         fetch('/api/tech-os/factory/sessions')
@@ -120,8 +115,8 @@ export function App() {
           setSessions(sData.sessions);
         }
       }
-    } catch (e: any) {
-      setError(e.message || 'Erreur de connexion à l\'API SSSF');
+    } catch {
+      // Ignored
     } finally {
       setLoading(false);
     }
