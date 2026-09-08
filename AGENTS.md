@@ -31,4 +31,11 @@
 - **Pilier 4 (Widget SDK & Blueprints)** : Moteur déclaratif d'applications et export/import instantané de configuration de bureau (clonage client/franchise).
 - **Pilier 5 (Design System & 12 Thèmes)** : 12 thèmes canoniques portés de BusinessOS, injection de tokens CSS dynamiques via `:root`, centre de notifications avec unread badge, toasts interactifs, et Launchpad AppDrawer.
 - **Pilier 6 (Architecture AppLayout & Résilience)** : Cadre d'application responsive avec sidebar rétractable, breadcrumbs dans la barre de titre de fenêtre, décodeur défensif d'enveloppe de session et filet de capture d'erreurs globales avec réinitialisation d'urgence `?reset=1`.
+- **Pilier 7 (Dock V3 aux Standards BusinessOS & Déploiement GitHub)** :
+  - **20 Skins UI/UX Pro Max** portés de BusinessOS (`dockSkins.ts` : glass, clay, brutalism, cyberpunk, retro, macos, win95, solarpunk...).
+  - **Placement Réversible à Droite** (`bottom` ou `right`), modifiant dynamiquement la zone de travail utile du bureau (`cadreBureau()`).
+  - **Magnification Progressive Fish-Eye** : Transition fluide au survol calculée par distance (1.28x au centre, 1.14x au premier rang, 1.05x au second rang).
+  - **Pop-up In-Dock Settings** (`Settings2`) : Commutateur immédiat de position et de skin avec prévisualisation des pastilles.
+  - **Dépôt GitHub Public pour Jules** : Synchronisé sur [https://github.com/Amdkn/Agent-OS-Desktop](https://github.com/Amdkn/Agent-OS-Desktop) (branche `main`), validé `tsc --noEmit` 0 erreur, build Vite production conforme, serveur local actif sur le port 5555.
 - **Invariant Absolu** : Préservation intégrale et non-régression sur le fenêtrage V1 et le CMS V2.
+
