@@ -8,6 +8,7 @@ import { AmyOmnibar } from './AmyOmnibar';
 import { RiverEventStream } from './RiverEventStream';
 import { SilverPlatterGrid } from './SilverPlatterGrid';
 import { WarRoomDrawer } from './WarRoomDrawer';
+import { DetailSidebarPanel } from './DetailSidebarPanel';
 
 interface Props {
   onOpenSecondBrain: () => void;
@@ -69,6 +70,7 @@ export const CommandCenter: React.FC<Props> = ({
 }) => {
   const [timeStr, setTimeStr] = useState('');
   const [dateStr, setDateStr] = useState('');
+  const [selectedDetailNode, setSelectedDetailNode] = useState<any | null>(null);
   const { toggleWarRoom } = useAmyCockpitStore();
 
   // Live Digital Clock
@@ -145,7 +147,7 @@ export const CommandCenter: React.FC<Props> = ({
             className="flex items-center gap-2 px-4 py-1.5 rounded-xl bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-500 hover:to-amber-500 text-white font-bold shadow-lg shadow-orange-950 transition-all"
           >
             <span>🌌</span>
-            <span>SECOND BRAIN</span>
+            <span>7D ORBITAL BRAIN</span>
           </button>
         </div>
       </div>
@@ -195,7 +197,10 @@ export const CommandCenter: React.FC<Props> = ({
               {DEFAULT_MICRO_APPS.map((app) => (
                 <div
                   key={app.id}
-                  onClick={() => onOpenMicroApp(app.id)}
+                  onClick={() => {
+                    onOpenMicroApp(app.id);
+                    setSelectedDetailNode({ id: app.id, label: app.name, icon: app.icon, dimension: '2D APPLICATIONS' });
+                  }}
                   className="group p-3 rounded-xl bg-neutral-950/60 hover:bg-neutral-800/60 border border-neutral-800/60 hover:border-orange-500/50 transition-all cursor-pointer flex items-center justify-between"
                 >
                   <div className="flex items-center gap-3">
@@ -260,6 +265,7 @@ export const CommandCenter: React.FC<Props> = ({
                 {emailIntel.flagged.map((item) => (
                   <div
                     key={item.id}
+                    onClick={() => setSelectedDetailNode({ id: item.id, label: item.title, icon: '✉️', dimension: 'EMAIL INTEL' })}
                     className="p-2 rounded-lg bg-neutral-950/70 border border-neutral-800/80 flex items-start gap-2 hover:border-orange-500/40 transition-colors cursor-pointer"
                   >
                     <span className="text-orange-500 text-xs">✉️</span>
@@ -333,6 +339,12 @@ export const CommandCenter: React.FC<Props> = ({
 
       {/* 7D War Room Drawer Panel */}
       <WarRoomDrawer />
+
+      {/* Slide-over Detail Sidebar Panel */}
+      <DetailSidebarPanel
+        node={selectedDetailNode}
+        onClose={() => setSelectedDetailNode(null)}
+      />
     </div>
   );
 };
