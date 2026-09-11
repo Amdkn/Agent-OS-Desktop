@@ -126,6 +126,14 @@ export const GenerationsGallery: React.FC<Props> = ({ onBack }) => {
           {filtered.map((asset) => (
             <div
               key={asset.id}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  setSelectedAsset(asset);
+                }
+              }}
               onClick={() => setSelectedAsset(asset)}
               className="group bg-neutral-900/60 border border-neutral-800/80 hover:border-orange-500/50 rounded-2xl overflow-hidden transition-all duration-200 hover:shadow-2xl hover:shadow-orange-950/20 cursor-pointer flex flex-col"
             >
