@@ -88,6 +88,7 @@ export function AppDrawer(): import('react').ReactNode {
         <div className="flex flex-wrap items-center justify-center gap-2 pt-2">
           {categories.map((cat) => (
             <button
+              type="button"
               key={cat}
               onClick={() => setSelectedCategory(cat)}
               className={`px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer ${
@@ -107,6 +108,7 @@ export function AppDrawer(): import('react').ReactNode {
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
           {filteredApps.map((app) => (
             <button
+              type="button"
               key={app.id}
               onClick={() => {
                 openWindow(app.id, { title: app.name });

@@ -122,6 +122,7 @@ export function Dock() {
         {/* Launchpad / AppDrawer */}
         <div className="relative group shrink-0">
           <button
+            type="button"
             onClick={toggleAppDrawer}
             onMouseEnter={() => setSurvolIndex(-2)}
             title="Toutes les Applications (Launchpad)"
@@ -170,6 +171,7 @@ export function Dock() {
         {/* Explorateur Hiérarchique CMS V2 */}
         <div className="relative group shrink-0">
           <button
+            type="button"
             onClick={toggleCms}
             onMouseEnter={() => setSurvolIndex(-1)}
             title="Agent OS V2 · CMS Hiérarchique (Wix Pattern 7 Niveaux)"
@@ -259,6 +261,7 @@ export function Dock() {
               return (
                 <div key={app.id} className="group relative shrink-0">
                   <button
+                    type="button"
                     onClick={handleClick}
                     onMouseEnter={() => setSurvolIndex(idx)}
                     title={app.description || app.name}
@@ -287,6 +290,7 @@ export function Dock() {
 
                   {/* Bouton de fermeture au survol */}
                   <button
+                    type="button"
                     onClick={(e) => {
                       e.stopPropagation();
                       wins.forEach((w) => closeWindow(w.id));
@@ -346,6 +350,7 @@ export function Dock() {
         {/* Bouton de Réglages du Dock (Position & 20 Skins UI/UX Pro Max) */}
         <div className="relative shrink-0" ref={panneauRef}>
           <button
+            type="button"
             onClick={() => setReglagesOuverts((v) => !v)}
             onMouseEnter={() => setSurvolIndex(999)}
             title="Réglages du dock (Position & Thèmes)"
@@ -391,7 +396,9 @@ export function Dock() {
               </div>
               <div className="mb-3 grid grid-cols-2 gap-1.5">
                 <button
+                  type="button"
                   onClick={() => setPosition('bottom')}
+                  aria-label="Placer en bas"
                   className={`flex items-center justify-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-medium transition-all ${
                     position === 'bottom'
                       ? 'bg-cyan-500/25 border-cyan-400 text-cyan-200'
@@ -402,7 +409,9 @@ export function Dock() {
                   Bas
                 </button>
                 <button
+                  type="button"
                   onClick={() => setPosition('right')}
+                  aria-label="Placer à droite"
                   className={`flex items-center justify-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-medium transition-all ${
                     position === 'right'
                       ? 'bg-cyan-500/25 border-cyan-400 text-cyan-200'
@@ -426,8 +435,10 @@ export function Dock() {
                   const on = s.id === skinId;
                   return (
                     <button
+                      type="button"
                       key={s.id}
                       onClick={() => setSkin(s.id)}
+                      aria-label={`Thème ${s.label}`}
                       className={`flex items-center gap-2.5 rounded-lg px-2 py-1.5 text-left text-xs transition-colors ${
                         on
                           ? 'bg-white/15 text-white font-medium'
