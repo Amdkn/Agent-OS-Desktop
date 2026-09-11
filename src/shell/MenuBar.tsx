@@ -139,6 +139,7 @@ export function MenuBar() {
       <div className="w-5 h-5 rounded-sm bg-[var(--color-accent)]/80 mr-2" />
       {menus.map((m) => (
         <button
+          type="button"
           key={m.label}
           onMouseEnter={() => setOpen(m.label)}
           onClick={() => setOpen((cur) => (cur === m.label ? null : m.label))}
@@ -154,6 +155,7 @@ export function MenuBar() {
       <div className="flex items-center gap-1 mx-2 px-1 py-0.5 rounded-lg bg-black/40 border border-white/10 font-mono text-[11px]">
         {workspaces.map((ws) => (
           <button
+            type="button"
             key={ws.id}
             onClick={() => switchWorkspace(ws.id)}
             className={`px-2 py-0.5 rounded transition-all flex items-center gap-1 ${
@@ -170,7 +172,9 @@ export function MenuBar() {
 
       <div className="flex-1" />
       <button
+        type="button"
         onClick={toggleCommandPalette}
+        aria-label="Ouvrir la Command Palette universelle"
         title="Ouvrir la Command Palette universelle (Ctrl+K / ⌘K)"
         className="flex items-center gap-1.5 px-2 py-0.5 rounded bg-white/5 hover:bg-white/10 border border-white/10 text-[var(--color-text-dim)] hover:text-white transition-colors mr-2 cursor-pointer"
       >
@@ -204,6 +208,7 @@ export function MenuBar() {
             .find((m) => m.label === open)!
             .items.map((it, i) => (
               <button
+                type="button"
                 key={i}
                 onClick={it.action}
                 className="w-full text-left px-3 py-1.5 hover:bg-[var(--color-accent)]/15 hover:text-[var(--color-accent)] disabled:opacity-50"

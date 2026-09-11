@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import type { BrainNode } from '../types';
 
 interface Props {
@@ -6,15 +6,6 @@ interface Props {
   onOpenApp?: (appId: string) => void;
   onSelectNodeDetail?: (node: any) => void;
 }
-
-const DEPARTMENTS = [
-  { id: 'CONTENT', label: 'CONTENT', color: '#ec4899', angle: 30 },
-  { id: 'COMMUNITY', label: 'COMMUNITY', color: '#06b6d4', angle: 90 },
-  { id: 'PRODUCT', label: 'PRODUCT', color: '#3b82f6', angle: 150 },
-  { id: 'PERSONAL', label: 'PERSONAL', color: '#eab308', angle: 210 },
-  { id: 'BUSINESS', label: 'BUSINESS', color: '#a855f7', angle: 270 },
-  { id: 'OPERATIONS', label: 'OPERATIONS', color: '#10b981', angle: 330 },
-];
 
 const SOUL_NODES = [
   { id: 'claude-md', label: 'CLAUDE.md', icon: '🤖', angle: 15, color: '#f97316' },

@@ -88,28 +88,33 @@ function WindowTitleBarContent({
       className="window-titlebar h-9 flex items-center px-3 gap-2 cursor-grab active:cursor-grabbing select-none"
     >
       <button
+        type="button"
         onClick={(e) => {
           e.stopPropagation();
           close(win.id);
         }}
-        aria-label="fermer"
+        aria-label="Fermer"
+        title="Fermer"
         className="traffic-light bg-rose-400 hover:bg-rose-300"
       />
       <button
+        type="button"
         onClick={(e) => {
           e.stopPropagation();
           minimize(win.id);
         }}
-        aria-label="réduire"
+        aria-label="Minimiser"
+        title="Minimiser"
         className="traffic-light bg-amber-400 hover:bg-amber-300"
       />
       <button
+        type="button"
         onClick={(e) => {
           e.stopPropagation();
           toggleMaximize(win.id, cadreBureau());
         }}
-        aria-label={win.maximized ? 'restaurer' : 'plein ecran'}
-        title={win.maximized ? 'restaurer' : 'plein ecran'}
+        aria-label={win.maximized ? 'Restaurer' : 'Plein ecran'}
+        title={win.maximized ? 'Restaurer' : 'Plein ecran'}
         className="traffic-light bg-emerald-400 hover:bg-emerald-300"
       />
 
@@ -130,10 +135,12 @@ function WindowTitleBarContent({
 
       <div className="flex items-center gap-1 shrink-0">
         <button
+          type="button"
           onClick={(e) => {
             e.stopPropagation();
             togglePinWindow(win.id);
           }}
+          aria-label={win.pinned ? 'Désépingler PiP' : 'Épingler au premier plan (PiP)'}
           title={win.pinned ? 'Désépingler PiP' : 'Épingler au premier plan (PiP)'}
           className={`px-1.5 py-0.5 rounded text-[10px] transition-colors ${
             win.pinned
@@ -144,20 +151,24 @@ function WindowTitleBarContent({
           📌
         </button>
         <button
+          type="button"
           onClick={(e) => {
             e.stopPropagation();
             snapWindow(win.id, 'left', cadreBureau());
           }}
+          aria-label="Ancrer à gauche (50%)"
           title="Ancrer à gauche (50%)"
           className="px-1 py-0.5 rounded text-[10px] text-[var(--color-text-dim)] hover:text-white hover:bg-white/10"
         >
           ◧
         </button>
         <button
+          type="button"
           onClick={(e) => {
             e.stopPropagation();
             snapWindow(win.id, 'right', cadreBureau());
           }}
+          aria-label="Ancrer à droite (50%)"
           title="Ancrer à droite (50%)"
           className="px-1 py-0.5 rounded text-[10px] text-[var(--color-text-dim)] hover:text-white hover:bg-white/10"
         >
