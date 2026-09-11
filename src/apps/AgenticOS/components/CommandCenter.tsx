@@ -197,6 +197,15 @@ export const CommandCenter: React.FC<Props> = ({
               {DEFAULT_MICRO_APPS.map((app) => (
                 <div
                   key={app.id}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      onOpenMicroApp(app.id);
+                      setSelectedDetailNode({ id: app.id, label: app.name, icon: app.icon, dimension: '2D APPLICATIONS' });
+                    }
+                  }}
                   onClick={() => {
                     onOpenMicroApp(app.id);
                     setSelectedDetailNode({ id: app.id, label: app.name, icon: app.icon, dimension: '2D APPLICATIONS' });
@@ -265,6 +274,14 @@ export const CommandCenter: React.FC<Props> = ({
                 {emailIntel.flagged.map((item) => (
                   <div
                     key={item.id}
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        setSelectedDetailNode({ id: item.id, label: item.title, icon: '✉️', dimension: 'EMAIL INTEL' });
+                      }
+                    }}
                     onClick={() => setSelectedDetailNode({ id: item.id, label: item.title, icon: '✉️', dimension: 'EMAIL INTEL' })}
                     className="p-2 rounded-lg bg-neutral-950/70 border border-neutral-800/80 flex items-start gap-2 hover:border-orange-500/40 transition-colors cursor-pointer"
                   >

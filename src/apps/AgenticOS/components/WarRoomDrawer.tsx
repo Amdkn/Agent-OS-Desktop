@@ -140,10 +140,11 @@ export const WarRoomDrawer: React.FC = () => {
         {activeTab === 'debate' && (
           <div className="space-y-4">
             <div className="space-y-2">
-              <label className="text-[10px] text-neutral-400 uppercase font-semibold">
+              <label htmlFor="agent-debate-topic" className="text-[10px] text-neutral-400 uppercase font-semibold">
                 SUJET D'ARBITRAGE MULTI-AGENTS
               </label>
               <input
+                id="agent-debate-topic"
                 type="text"
                 value={agentDebateTopic}
                 onChange={(e) => setAgentDebateTopic(e.target.value)}

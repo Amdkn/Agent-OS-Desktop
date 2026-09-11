@@ -87,7 +87,9 @@ export const AmyOmnibar: React.FC = () => {
         {/* Substrate Model Switcher */}
         <div className="p-3 rounded-xl bg-neutral-950/80 border border-neutral-800 space-y-1.5">
           <span className="text-[10px] text-neutral-400 uppercase font-semibold">SUBSTRAT D'EXÉCUTION</span>
+          <label htmlFor="substrate-selector" className="sr-only">Substrat d'exécution</label>
           <select
+            id="substrate-selector"
             value={activeModel}
             onChange={(e) => setActiveModel(e.target.value)}
             className="w-full bg-neutral-900 border border-neutral-800 rounded-lg p-1.5 text-xs text-orange-400 font-bold font-mono focus:outline-none focus:border-orange-500 cursor-pointer"
