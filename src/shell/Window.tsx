@@ -195,6 +195,9 @@ export function Window({ win, children }: WindowProps) {
   const focused = useShell((s) => s.focused === win.id);
   const dragRef = useRef<{ ox: number; oy: number } | null>(null);
   const resizeRef = useRef<ResizeStart | null>(null);
+  const winRef = useRef<HTMLDivElement>(null);
+  const animationFrameRef = useRef<number | null>(null);
+  const localGeometryRef = useRef<{ x: number; y: number; w: number; h: number } | null>(null);
 
   // Esc closes — small QoL, deliberately not configurable in V1.
   useEffect(() => {
@@ -218,7 +221,17 @@ export function Window({ win, children }: WindowProps) {
       if (!snap) return;
       const nx = Math.max(0, ev.clientX - snap.ox);
       const ny = Math.max(0, ev.clientY - snap.oy);
-      move(win.id, nx, ny);
+
+      localGeometryRef.current = { ...localGeometryRef.current, x: nx, y: ny, w: win.w, h: win.h };
+
+      if (animationFrameRef.current === null) {
+        animationFrameRef.current = requestAnimationFrame(() => {
+          if (winRef.current && localGeometryRef.current) {
+             winRef.current.style.transform = `translate(${localGeometryRef.current.x - win.x}px, ${localGeometryRef.current.y - win.y}px)`;
+          }
+          animationFrameRef.current = null;
+        });
+      }
 
       // Aero Snap detection
       const target = detectSnapTarget(ev.clientX, ev.clientY, cadreBureau());
@@ -229,6 +242,19 @@ export function Window({ win, children }: WindowProps) {
       setActiveSnapTarget(null);
       window.removeEventListener('mousemove', onMove);
       window.removeEventListener('mouseup', onUp);
+
+      if (animationFrameRef.current !== null) {
+        cancelAnimationFrame(animationFrameRef.current);
+        animationFrameRef.current = null;
+      }
+      if (winRef.current) {
+        winRef.current.style.transform = 'none';
+      }
+
+      if (localGeometryRef.current) {
+        move(win.id, localGeometryRef.current.x, localGeometryRef.current.y);
+        localGeometryRef.current = null;
+      }
 
       // Si relâché sur une zone de snap, appliquer
       const snapTarget = detectSnapTarget(ev.clientX, ev.clientY, cadreBureau());
@@ -285,13 +311,40 @@ export function Window({ win, children }: WindowProps) {
       void affectsW; void affectsE; void affectsN; void affectsS;
 
       const g = borner({ x: nx, y: ny, w: nw, h: nh }, cadreBureau(), MIN_W, MIN_H);
-      resize(win.id, g.w, g.h);
-      move(win.id, g.x, g.y);
+
+      localGeometryRef.current = { x: g.x, y: g.y, w: g.w, h: g.h };
+
+      if (animationFrameRef.current === null) {
+        animationFrameRef.current = requestAnimationFrame(() => {
+          if (winRef.current && localGeometryRef.current) {
+            winRef.current.style.transform = `translate(${localGeometryRef.current.x - win.x}px, ${localGeometryRef.current.y - win.y}px)`;
+            winRef.current.style.width = `${localGeometryRef.current.w}px`;
+            winRef.current.style.height = `${localGeometryRef.current.h}px`;
+          }
+          animationFrameRef.current = null;
+        });
+      }
     };
     const onUp = () => {
       resizeRef.current = null;
       window.removeEventListener('mousemove', onMove);
       window.removeEventListener('mouseup', onUp);
+
+      if (animationFrameRef.current !== null) {
+        cancelAnimationFrame(animationFrameRef.current);
+        animationFrameRef.current = null;
+      }
+      if (winRef.current) {
+        winRef.current.style.transform = 'none';
+        winRef.current.style.width = `${win.w}px`;
+        winRef.current.style.height = `${win.h}px`;
+      }
+
+      if (localGeometryRef.current) {
+        resize(win.id, localGeometryRef.current.w, localGeometryRef.current.h);
+        move(win.id, localGeometryRef.current.x, localGeometryRef.current.y);
+        localGeometryRef.current = null;
+      }
     };
     window.addEventListener('mousemove', onMove);
     window.addEventListener('mouseup', onUp);
@@ -300,6 +353,7 @@ export function Window({ win, children }: WindowProps) {
   return (
     <WindowNavProvider>
       <div
+        ref={winRef}
         onMouseDown={() => focus(win.id)}
         className="absolute window-chrome rounded-lg overflow-hidden flex flex-col transition-shadow duration-200"
         style={{
