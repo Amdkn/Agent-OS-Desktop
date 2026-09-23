@@ -40,3 +40,8 @@
   - **Dépôt GitHub Public pour Jules** : Synchronisé sur [https://github.com/Amdkn/Agent-OS-Desktop](https://github.com/Amdkn/Agent-OS-Desktop) (branche `main`), validé `tsc --noEmit` 0 erreur, build Vite production conforme, serveur local actif sur le port 5555.
 - **Invariant Absolu** : Préservation intégrale et non-régression sur le fenêtrage V1 et le CMS V2.
 
+
+
+## D4 - 2026-09-23 - KER-44 read-only WorkGraph projection
+- GET /api/tech-os/workgraph/projection delegates to kernel dao_jing.py with validated argv and no shell. Write methods return 405; UI owns no projection business logic.
+- Kernel contract: WorkGraphProjection.v1, thirteen roles, max eight items and 8192 UTF-8 bytes.
