@@ -9,6 +9,7 @@
  */
 
 import { exec } from 'node:child_process';
+import { serveWorkgraphProjection } from './workgraph-projection';
 import fs from 'node:fs';
 import path from 'node:path';
 import type { Plugin, ViteDevServer } from 'vite';
@@ -27,6 +28,7 @@ export function techOsApi(): Plugin {
         res.setHeader('Content-Type', 'application/json; charset=utf-8');
 
         const url = (req.url || '/').split('?')[0];
+        if (serveWorkgraphProjection(req, res, url, KERNEL_DIR)) return;
 
         // 1. Liste et topologie des Workflows
         if (url === '/workflows' && req.method === 'GET') {
