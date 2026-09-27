@@ -77,40 +77,41 @@ export function techOsApi(): Plugin {
 
         // 4. Exécution d'un script de Workflow
         if (url === '/execute' && req.method === 'POST') {
-          let body = '';
-          req.on('data', (chunk) => (body += chunk));
-          req.on('end', () => {
+          (async () => {
+            let body = '';
+            for await (const chunk of req) {
+              body += chunk;
+            }
             try {
-              const data = JSON.parse(body);
-              const scriptName = data.script;
+              const data = JSON.parse(body || '{}');
               const scriptArgs = data.args || '';
 
-              const allowedScripts = [
-                'dark_factory.py',
-                'gate.py',
-                'nardole_assembler.py',
-                'graham_checkpoint.py',
-                'dlq.py',
-                'review.py',
-                'beth_consumer.py',
-                'harness.py',
-                'uc.py'
-              ];
-
-              if (!allowedScripts.includes(scriptName)) {
+              // Autoriser l'exécution sécurisée des scripts Python du workspace ASpace_OS_V3
+              const normalizedPath = (data.path || (data.script ? `10_Tech_OS/kernel/${data.script}` : '')).replace(/\\/g, '/');
+              
+              // Protection anti-traversal stricte
+              if (!normalizedPath || normalizedPath.includes('..') || !normalizedPath.endsWith('.py')) {
                 res.statusCode = 400;
-                res.end(JSON.stringify({ ok: false, error: 'Script non autorisé' }));
+                res.end(JSON.stringify({ ok: false, error: 'Chemin de script invalide ou non autorisé' }));
                 return;
               }
 
-              const scriptPath = path.join(KERNEL_DIR, scriptName);
-              const cmd = 'python "' + scriptPath + '" ' + scriptArgs;
+              const rootDir = path.resolve('C:/Users/amado/ASpace_OS_V3');
+              const fullScriptPath = path.resolve(rootDir, normalizedPath);
+              if (!fullScriptPath.startsWith(rootDir) || !fs.existsSync(fullScriptPath)) {
+                res.statusCode = 404;
+                res.end(JSON.stringify({ ok: false, error: `Script introuvable: ${normalizedPath}` }));
+                return;
+              }
 
-              exec(cmd, { cwd: KERNEL_DIR, timeout: 30000 }, (err, stdout, stderr) => {
+              const scriptDir = path.dirname(fullScriptPath);
+              const cmd = 'python "' + fullScriptPath + '" ' + scriptArgs;
+
+              exec(cmd, { cwd: scriptDir, timeout: 35000 }, (err, stdout, stderr) => {
                 res.end(
                   JSON.stringify({
                     ok: !err,
-                    exitCode: err ? err.code : 0,
+                    exitCode: err ? (err.code || 1) : 0,
                     stdout: stdout || '',
                     stderr: stderr || '',
                     cmd,
@@ -121,7 +122,7 @@ export function techOsApi(): Plugin {
               res.statusCode = 400;
               res.end(JSON.stringify({ ok: false, error: err.message }));
             }
-          });
+          })();
           return;
         }
 
@@ -168,7 +169,44 @@ export function techOsApi(): Plugin {
           return;
         }
 
-        // 7. Subagents Roster & Realtime State
+        // 7. Jules Core Budget / Allocation (A0 policy)
+        if (url === '/allocation' && req.method === 'GET') {
+          try {
+            const fleetPath = path.join(TECH_OS_DIR, 'reports', 'jules_kernel_fleet.json');
+            const policy = {
+              kernel: { target_pct: 20, lane_cap: 3 },
+              life: { target_pct: 30, lane_cap: 4 },
+              business: { target_pct: 50, lane_cap: 8 },
+              total_lane_cap: 15,
+              source: 'A0 policy 2026-09-21',
+            };
+            let fleet: any = null;
+            if (fs.existsSync(fleetPath)) {
+              fleet = JSON.parse(fs.readFileSync(fleetPath, 'utf-8'));
+            }
+            const active = fleet?.core_active || { KERNEL: 0, LIFE: 0, BUSINESS: 0 };
+            const drift = {
+              kernel: Math.max(0, (active.KERNEL || 0) - policy.kernel.lane_cap),
+              life: Math.max(0, (active.LIFE || 0) - policy.life.lane_cap),
+              business: Math.max(0, (active.BUSINESS || 0) - policy.business.lane_cap),
+            };
+            res.end(JSON.stringify({
+              ok: true,
+              fetchedAt: new Date().toISOString(),
+              policy,
+              active,
+              drift,
+              stale: !fleet,
+              fleetReport: fleet,
+            }));
+          } catch (e: any) {
+            res.statusCode = 500;
+            res.end(JSON.stringify({ ok: false, error: e.message }));
+          }
+          return;
+        }
+
+        // 8. Subagents Roster & Realtime State
         if (url === '/subagents' && req.method === 'GET') {
           try {
             const reportsDir = path.join(TECH_OS_DIR, 'reports');

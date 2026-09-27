@@ -24,5 +24,7 @@ Scope: prouver que l'état courant (17 fichiers modifiés, ~20 apps nouvelles) c
   EXPECT: HTTP_ENDPOINTS_OK
   EVIDENCE: exit=0; shell=C:\WINDOWS\system32\cmd.exe; cwd=C:\Users\amado\agent-os\desktop; path=eedcfca3d0a1/91 entries; output=/api/tech-os/kernel-state -> 200 json | HTTP_ENDPOINTS_OK
 
-- [ ] G5: Verification visuelle Playwright (fond d'ecran, icones, redimensionnement) executee par verifie_v3.mjs
-  ABANDON: G5 Playwright absent de ~/gauntlet-eyes sous WSL (mesure : grep -c playwright = 0). Le port du script a ete repare 5199 -> 5555. Reprise : installer Playwright sous WSL puis executer node verifie_v3.mjs app lance sur 5555.
+- [x] G5: Verification visuelle Playwright (fond d'ecran, icones, redimensionnement) executee par verifie_v3.mjs
+  CHECK: wsl.exe -d Ubuntu-24.04 -e bash -lc "cd ~/gauntlet-eyes && node verifie_v3.mjs > ~/gauntlet-eyes/.v3.log 2>&1; ! grep -q ECHEC ~/gauntlet-eyes/.v3.log && ! grep -q 'ERREURS CONSOLE : [1-9]' ~/gauntlet-eyes/.v3.log && echo V3_VISUAL_OK"
+  EXPECT: V3_VISUAL_OK
+  EVIDENCE: exit=0; shell=C:\WINDOWS\system32\cmd.exe; cwd=C:\Users\amado\agent-os\desktop; path=8affd6f7d72d/88 entries; output=V3_VISUAL_OK

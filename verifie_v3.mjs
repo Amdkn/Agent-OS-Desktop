@@ -6,9 +6,9 @@
  * write a short summary to stdout. The brief asks for visual evidence, so
  * the script names the screenshots and writes them under SORTIE.
  *
- * Selector note (from the previous verifier's comment): the dock isn't a
- * <button>-bearing footer, it's a <div> of buttons. We drive buttons by
- * their visible title, just like the original.
+ * Selector note: apps are opened via their desktop icons
+ * (`[data-desktop-icon]`). Dock buttons live behind closed panels and carry
+ * description-style tooltips, so they are not a reliable launch path.
  */
 
 import { pathToFileURL } from 'node:url';
@@ -47,7 +47,6 @@ await p.waitForTimeout(1500);
 
 /* ---------------- helpers ---------------- */
 
-const dock = (nom) => p.locator(`button[title]:has-text("${nom}")`).first();
 const desktopIcon = (appId) => p.locator(`[data-desktop-icon="${appId}"]`).first();
 
 const getIconPos = (appId) =>
@@ -207,9 +206,10 @@ await p.screenshot({ path: `${SORTIE}/05-icon-after-reload.png`, fullPage: false
 
 /* ---------------- 4. window resize by edge AND by corner ---------------- */
 
-await dock('moires').click().catch(async () => {
-  await dock('Memoires').click();
-});
+// Open a window via the observers icon — a proven interaction (sections 2-3).
+// The memories icon is unusable here: the section-3 drag parks it under a
+// neighbouring icon, and dock buttons live behind closed panels/overlays.
+await desktopIcon('observers').dblclick();
 await p.waitForTimeout(700);
 
 // Helper: pick the lateral handle on the requested side. The east handle
