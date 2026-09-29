@@ -1,11 +1,11 @@
+import type { RuntimePresence } from './truth.ts';
 import {
   RuntimePresenceSchema,
   SourceSyncFingerprintSchema,
   ReconciliationClassificationSchema,
   SystemStatusSchema,
-  isPresenceLive,
-  RuntimePresence
-} from './truth';
+  isPresenceLive
+} from './truth.ts';
 
 function runTests() {
   console.log("Running truth contract tests...");
@@ -24,13 +24,15 @@ function runTests() {
   // Test: No-fake-status invariant (existence != LIVE)
   const now = Date.now();
   const expiredPresence: RuntimePresence = {
+    identity: 'worker-1',
     provenance: 'local-test',
     observedAt: now - 10000,
     expiresAt: now - 5000,
     ttlSeconds: 5,
     livenessReason: 'test',
     evidenceRefs: [],
-    fencingLeaseIdentity: 'lease-1'
+    fencingLeaseIdentity: 'lease-1',
+    capabilities: { "fs-access": true }
   };
 
   const validExpiredPresence = RuntimePresenceSchema.parse(expiredPresence);
@@ -57,7 +59,8 @@ function runTests() {
 
   const fingerprint = SourceSyncFingerprintSchema.parse({
     parentRepoSha: '1234567890abcdef',
-    parentGitlink: 'https://github.com/Amdkn/Aspace_OS_V3',
+    parentGitlinkCommitSha: '0987654321fedcba',
+    parentGitlink: 'Agent-OS-Desktop',
     agentOsDesktopHeadSha: 'abcdef1234567890',
     agentOsDesktopIsDirty: true
   });
