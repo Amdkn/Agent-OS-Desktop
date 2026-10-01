@@ -62,11 +62,9 @@ function runTests() {
   check(status4 === 'DEGRADED', `Provider failure maps to DEGRADED, got ${status4}`);
 
   const offlineResponse = { status: 'SUCCESS', systemStatus: 'OFFLINE_LOCAL', reconciliationState: 'LIVE_LOCAL' };
-  // Note: if system is offline but we miraculously have fresh presence, logic still allows AVAILABLE if not degraded. 
-  // But if presence is empty, it's UNKNOWN. Let's test UNKNOWN
-  const errorResponse = { status: 'ERROR', systemStatus: 'UNKNOWN', reconciliationState: 'LIVE_LOCAL' };
-  const status5 = resolveDisplayStatus(errorResponse, undefined);
-  check(status5 === 'UNKNOWN', `Error/empty response maps to UNKNOWN, got ${status5}`);
+  // OFFLINE_LOCAL without runtime presence must never be promoted to AVAILABLE/LIVE.
+  const status5 = resolveDisplayStatus(offlineResponse, undefined);
+  check(status5 === 'UNKNOWN', `Offline local without presence maps to UNKNOWN, got ${status5}`);
 
   // Test 5: No service-role/privileged secret is present in browser bundle
   testNoSecretsLeak();
