@@ -10,7 +10,8 @@
     "typecheck": "tsc --noEmit",
     "test:contracts": "node --experimental-strip-types src/contracts/truth.test.ts",
     "test:api": "node --experimental-strip-types src/api/projection.test.ts",
-    "test": "npm run test:contracts && npm run test:api"
+    "test:canary": "node --experimental-strip-types src/apps/CanaryHarness/canary.test.ts",
+    "test": "npm run test:contracts && npm run test:api && npm run test:canary"
   },
   "dependencies": {
     "lucide-react": "^1.42.0",
