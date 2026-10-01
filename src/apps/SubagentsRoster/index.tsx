@@ -1,5 +1,6 @@
 ﻿import { useEffect, useState } from 'react';
 import type { AppManifest } from '../../types';
+import { AgentCard } from './AgentCard';
 
 export const manifest: AppManifest = {
   id: 'subagents-roster',
@@ -231,70 +232,12 @@ export function SubagentsRosterApp() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3.5 pb-6">
             {filteredAgents.map((agent) => (
-              <div
+              <AgentCard
                 key={agent.id}
-                className="p-4 rounded-xl bg-slate-900/70 border border-slate-800 hover:border-slate-700 transition-all flex flex-col justify-between"
-              >
-                <div>
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                        {agent.name}
-                        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700">
-                          {agent.layer}
-                        </span>
-                      </h3>
-                      <p className="text-xs text-indigo-300 font-medium mt-0.5">{agent.role}</p>
-                    </div>
-
-                    <span className="flex items-center gap-1.5 px-2 py-1 rounded text-[10px] font-bold bg-emerald-950/80 text-emerald-400 border border-emerald-800">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                      {agent.status.toUpperCase()}
-                    </span>
-                  </div>
-
-                  <p className="text-xs text-slate-400 mt-2 line-clamp-2 leading-relaxed">
-                    {agent.mission}
-                  </p>
-
-                  {/* Scheduled Tasks Links */}
-                  {agent.scheduledTasks && agent.scheduledTasks.length > 0 && (
-                    <div className="mt-3 pt-2 border-t border-slate-800/80">
-                      <div className="text-[10px] uppercase tracking-wider font-semibold text-slate-400 mb-1">
-                        Tâche Programmée :
-                      </div>
-                      <div className="flex flex-wrap gap-1.5">
-                        {agent.scheduledTasks.map((t) => (
-                          <span
-                            key={t.id}
-                            className="px-2 py-0.5 rounded bg-slate-800 text-cyan-300 text-[10px] font-mono border border-slate-700 flex items-center gap-1"
-                            title={t.purpose}
-                          >
-                            <span className="font-bold">{t.id}</span>
-                            <span className="text-slate-400">· {t.frequency}</span>
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* Footer Action */}
-                <div className="mt-4 pt-3 border-t border-slate-800 flex items-center justify-between">
-                  <span className="text-[11px] text-slate-400 font-mono">
-                    {agent.lastActive}
-                  </span>
-
-                  <button
-                    onClick={() => invokeAgent(agent.id)}
-                    disabled={invokingId === agent.id}
-                    className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white transition-colors flex items-center gap-1.5 shadow-sm"
-                  >
-                    <span>{invokingId === agent.id ? '⏳' : '⚡'}</span>
-                    <span>{invokingId === agent.id ? 'En cours...' : 'Invoquer'}</span>
-                  </button>
-                </div>
-              </div>
+                agent={agent}
+                invokingId={invokingId}
+                invokeAgent={invokeAgent}
+              />
             ))}
           </div>
         )}

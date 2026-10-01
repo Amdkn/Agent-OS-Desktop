@@ -60,11 +60,11 @@ export function Doctor13KernelApp({ payload }: { payload?: Record<string, unknow
   const [heartbeatCount, setHeartbeatCount] = useState(0);
   const [lastCheck, setLastCheck] = useState<string>('');
   const [services] = useState([
-    { name: 'Noyau SQLite (uc.db)', status: 'OPERATIONAL', latency: '2 ms', port: 'File / IPC' },
-    { name: 'Agent OS Web (Desktop)', status: 'OPERATIONAL', latency: '11 ms', port: '5555' },
-    { name: 'Antigravity Runtime (Gemini)', status: 'OPERATIONAL', latency: '45 ms', port: 'Native / IPC' },
-    { name: 'PocketBase Local', status: 'STANDBY', latency: '—', port: '8092' },
-    { name: 'Moteur Workflows Python (n8n Léger)', status: 'ONLINE', latency: '15 ms', port: 'Native / IPC' },
+    { name: 'Noyau SQLite (uc.db)', status: 'UNKNOWN', latency: '2 ms', port: 'File / IPC' },
+    { name: 'Agent OS Web (Desktop)', status: 'UNKNOWN', latency: '11 ms', port: '5555' },
+    { name: 'Antigravity Runtime (Gemini)', status: 'UNKNOWN', latency: '45 ms', port: 'Native / IPC' },
+    { name: 'PocketBase Local', status: 'UNKNOWN', latency: '—', port: '8092' },
+    { name: 'Moteur Workflows Python (n8n Léger)', status: 'UNKNOWN', latency: '15 ms', port: 'Native / IPC' },
   ]);
 
   // Ryan State
