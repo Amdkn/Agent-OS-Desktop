@@ -273,14 +273,14 @@ async function lireJson(req: http.IncomingMessage): Promise<Record<string, unkno
 }
 
 export function routeursApi(): Plugin {
-  // Débloqueurs locaux transparents pour ôter X-Frame-Options / frame-ancestors
-  demarrerDebloqueurIframe(8082, 8080); // Bifrost iframe unblocker
-  demarrerDebloqueurIframe(20130, 20129); // OmniRoute iframe unblocker
-  demarrerDebloqueurIframe(8092, 8090); // PocketDB iframe unblocker (8092 -> 8090)
-
   return {
     name: 'routeurs-api',
     configureServer(server: ViteDevServer) {
+      // Dev-only iframe unblockers. Starting these during config evaluation
+      // leaks listening sockets into `vite build` and prevents CI from exiting.
+      demarrerDebloqueurIframe(8082, 8080); // Bifrost iframe unblocker
+      demarrerDebloqueurIframe(20130, 20129); // OmniRoute iframe unblocker
+      demarrerDebloqueurIframe(8092, 8090); // PocketDB iframe unblocker (8092 -> 8090)
       server.middlewares.use('/api/meta-audit', async (req, res) => {
         const url = new URL(req.url || '/', 'http://x');
         const route = url.pathname.replace(/\/+$/, '') || '/';
