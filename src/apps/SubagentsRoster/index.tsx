@@ -20,7 +20,7 @@ interface ScheduledTask {
   purpose: string;
 }
 
-interface Subagent {
+export interface Subagent {
   id: string;
   name: string;
   role: string;

@@ -57,7 +57,7 @@ export class ApiProjectionLayer {
         timestamp: Date.now(),
         status: 'ERROR',
         error: err.message || 'Unknown projection error',
-        systemStatus: 'UNKNOWN',
+        systemStatus: 'OFFLINE_LOCAL',
         reconciliationState: 'LIVE_LOCAL', // default fallback for offline client error
         fingerprint: {
           parentRepoSha: 'UNKNOWN',

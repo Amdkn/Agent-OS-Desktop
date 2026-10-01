@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import type { AppManifest } from '../../types';
+import { useRuntimePresence } from '../../hooks/useRuntimePresence';
 import { useShell } from '../../shell/store';
 
 export const manifest: AppManifest = {
@@ -59,7 +60,10 @@ export function Doctor13KernelApp({ payload }: { payload?: Record<string, unknow
   const [telemetry, setTelemetry] = useState<Telemetry | null>(null);
   const [heartbeatCount, setHeartbeatCount] = useState(0);
   const [lastCheck, setLastCheck] = useState<string>('');
-  const [services] = useState([
+
+  const { status: doctor13Status } = useRuntimePresence('doctor_13_kernel');
+
+  const [services, setServices] = useState([
     { name: 'Noyau SQLite (uc.db)', status: 'UNKNOWN', latency: '2 ms', port: 'File / IPC' },
     { name: 'Agent OS Web (Desktop)', status: 'UNKNOWN', latency: '11 ms', port: '5555' },
     { name: 'Antigravity Runtime (Gemini)', status: 'UNKNOWN', latency: '45 ms', port: 'Native / IPC' },
@@ -95,9 +99,16 @@ export function Doctor13KernelApp({ payload }: { payload?: Record<string, unknow
       const res = await fetch('/api/tech-os/telemetry', { cache: 'no-store' });
       if (res.ok) {
         const data = await res.json();
-        if (data.ok && data.telemetry) setTelemetry(data.telemetry);
+        if (data.ok && data.telemetry) {
+          setTelemetry(data.telemetry);
+          setServices(prev => prev.map(s => s.name.includes('Desktop') ? { ...s, status: 'AVAILABLE' } : s));
+        }
+      } else {
+        setServices(prev => prev.map(s => s.name.includes('Desktop') ? { ...s, status: 'OFFLINE' } : s));
       }
-    } catch {}
+    } catch {
+      setServices(prev => prev.map(s => s.name.includes('Desktop') ? { ...s, status: 'OFFLINE' } : s));
+    }
     setLastCheck(new Date().toLocaleTimeString());
     setHeartbeatCount((c) => c + 1);
   };
@@ -126,7 +137,9 @@ export function Doctor13KernelApp({ payload }: { payload?: Record<string, unknow
           });
         }
       }
-    } catch {}
+    } catch {
+      // Ignore fetch error
+    }
     finally { setLoadingGraph(false); }
   };
 
@@ -137,7 +150,9 @@ export function Doctor13KernelApp({ payload }: { payload?: Record<string, unknow
         const data = await res.json();
         if (data.ok) setKernelStats({ works: data.works || [], events: data.events || [] });
       }
-    } catch {}
+    } catch {
+      // Ignore error
+    }
   };
 
   const fetchCheckpoints = async () => {
@@ -151,7 +166,9 @@ export function Doctor13KernelApp({ payload }: { payload?: Record<string, unknow
           setGrahamEvents(data.events || []);
         }
       }
-    } catch {}
+    } catch {
+      // Ignore error
+    }
     finally { setLoadingCheckpoints(false); }
   };
 
@@ -274,7 +291,7 @@ export function Doctor13KernelApp({ payload }: { payload?: Record<string, unknow
             <span>🗂️</span>
             <span>CMS</span>
           </button>
-          <span className="text-emerald-400">● L0 ACTIF</span>
+          <span className={doctor13Status === 'AVAILABLE' || doctor13Status === 'EXECUTING' || doctor13Status === 'BOUND' ? 'text-emerald-400' : (doctor13Status === 'STALE' ? 'text-amber-400' : (doctor13Status === 'DEGRADED' ? 'text-orange-400' : 'text-slate-500'))}>● L0 {doctor13Status}</span>
           <span className="text-slate-500">Tick #{heartbeatCount}</span>
         </div>
       </header>
@@ -313,7 +330,7 @@ export function Doctor13KernelApp({ payload }: { payload?: Record<string, unknow
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div className="p-4 rounded-xl bg-slate-900/80 border border-slate-800">
                 <div className="text-xs text-slate-400 font-semibold">ÉTAT DU NOYAU SQLITE</div>
-                <div className="text-2xl font-bold text-emerald-400 mt-1 font-mono">MODE WAL</div>
+                <div className="text-2xl font-bold text-slate-500 mt-1 font-mono">UNKNOWN</div>
                 <div className="text-[11px] text-slate-500 mt-1">uc.db · Verrous atomiques</div>
               </div>
               <div className="p-4 rounded-xl bg-slate-900/80 border border-slate-800">
@@ -328,7 +345,7 @@ export function Doctor13KernelApp({ payload }: { payload?: Record<string, unknow
               </div>
               <div className="p-4 rounded-xl bg-slate-900/80 border border-slate-800">
                 <div className="text-xs text-slate-400 font-semibold">COMPAGNONS ACTIFS</div>
-                <div className="text-2xl font-bold text-purple-400 mt-1 font-mono">3 / 3</div>
+                <div className="text-2xl font-bold text-slate-500 mt-1 font-mono">UNKNOWN</div>
                 <div className="text-[11px] text-slate-500 mt-1">Yas, Ryan, Graham</div>
               </div>
             </div>
@@ -338,19 +355,19 @@ export function Doctor13KernelApp({ payload }: { payload?: Record<string, unknow
                 <span>⚡ Rôles et Compagnons Rattachés au Kernel Core</span>
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                <div onClick={() => setActiveTab('yas')} className="p-3.5 rounded-lg bg-slate-950/80 border border-slate-800/80 hover:border-cyan-700/60 cursor-pointer transition-all">
+                <div onClick={() => setActiveTab('yas')} onKeyDown={(e) => { if (e.key === 'Enter') setActiveTab('yas'); }} role="button" tabIndex={0} className="p-3.5 rounded-lg bg-slate-950/80 border border-slate-800/80 hover:border-cyan-700/60 cursor-pointer transition-all">
                   <div className="flex items-center gap-2 font-bold text-cyan-300 text-xs">
                     <span>📡 Yas Observatory</span>
                   </div>
                   <p className="text-[11px] text-slate-400 mt-1.5">Télémétrie continue 60s, sondage CPU/RAM et heartbeat des services.</p>
                 </div>
-                <div onClick={() => setActiveTab('ryan')} className="p-3.5 rounded-lg bg-slate-950/80 border border-slate-800/80 hover:border-cyan-700/60 cursor-pointer transition-all">
+                <div onClick={() => setActiveTab('ryan')} onKeyDown={(e) => { if (e.key === 'Enter') setActiveTab('ryan'); }} role="button" tabIndex={0} className="p-3.5 rounded-lg bg-slate-950/80 border border-slate-800/80 hover:border-cyan-700/60 cursor-pointer transition-all">
                   <div className="flex items-center gap-2 font-bold text-amber-300 text-xs">
                     <span>🏗️ Ryan Builder</span>
                   </div>
                   <p className="text-[11px] text-slate-400 mt-1.5">CI/CD déclaratif, compilation TypeScript tsc, instanciation froide &lt; 30 min.</p>
                 </div>
-                <div onClick={() => setActiveTab('graham')} className="p-3.5 rounded-lg bg-slate-950/80 border border-slate-800/80 hover:border-cyan-700/60 cursor-pointer transition-all">
+                <div onClick={() => setActiveTab('graham')} onKeyDown={(e) => { if (e.key === 'Enter') setActiveTab('graham'); }} role="button" tabIndex={0} className="p-3.5 rounded-lg bg-slate-950/80 border border-slate-800/80 hover:border-cyan-700/60 cursor-pointer transition-all">
                   <div className="flex items-center gap-2 font-bold text-purple-300 text-xs">
                     <span>🧠 Graham Memory</span>
                   </div>
@@ -403,28 +420,28 @@ export function Doctor13KernelApp({ payload }: { payload?: Record<string, unknow
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div className="p-4 rounded-xl bg-slate-900/80 border border-slate-800">
                 <div className="text-xs text-slate-400">CHARGE CPU</div>
-                <div className="text-2xl font-bold text-cyan-400 mt-1 font-mono">
-                  {telemetry ? `${telemetry.cpu_percent.toFixed(1)} %` : '12.0 %'}
+                <div className={`text-2xl font-bold ${telemetry ? 'text-cyan-400' : 'text-slate-500'} mt-1 font-mono`}>
+                  {telemetry ? `${telemetry.cpu_percent.toFixed(1)} %` : 'UNKNOWN'}
                 </div>
                 <div className="text-[11px] text-slate-500 mt-1">Multi-cœur Intel Core i7</div>
               </div>
               <div className="p-4 rounded-xl bg-slate-900/80 border border-slate-800">
                 <div className="text-xs text-slate-400">UTILISATION RAM</div>
-                <div className="text-2xl font-bold text-indigo-400 mt-1 font-mono">
-                  {telemetry ? `${(telemetry.ram_used_mb / 1024).toFixed(1)} Go` : '8.2 Go'}
+                <div className={`text-2xl font-bold ${telemetry ? 'text-indigo-400' : 'text-slate-500'} mt-1 font-mono`}>
+                  {telemetry ? `${(telemetry.ram_used_mb / 1024).toFixed(1)} Go` : 'UNKNOWN'}
                 </div>
-                <div className="text-[11px] text-slate-500 mt-1">Sur {telemetry ? `${Math.round(telemetry.ram_total_mb / 1024)} Go` : '32 Go'} total</div>
+                <div className="text-[11px] text-slate-500 mt-1">Sur {telemetry ? `${Math.round(telemetry.ram_total_mb / 1024)} Go` : 'UNKNOWN'} total</div>
               </div>
               <div className="p-4 rounded-xl bg-slate-900/80 border border-slate-800">
                 <div className="text-xs text-slate-400">RATIO RAM</div>
-                <div className="text-2xl font-bold text-emerald-400 mt-1 font-mono">
-                  {telemetry ? `${telemetry.ram_percent.toFixed(0)} %` : '25 %'}
+                <div className={`text-2xl font-bold ${telemetry ? 'text-emerald-400' : 'text-slate-500'} mt-1 font-mono`}>
+                  {telemetry ? `${telemetry.ram_percent.toFixed(0)} %` : 'UNKNOWN'}
                 </div>
                 <div className="text-[11px] text-slate-500 mt-1">Empreinte Chokidar sobre</div>
               </div>
               <div className="p-4 rounded-xl bg-slate-900/80 border border-slate-800">
                 <div className="text-xs text-slate-400">CIRCUIT BREAKERS</div>
-                <div className="text-2xl font-bold text-emerald-400 mt-1 font-mono">3 / 3 ARMÉS</div>
+                <div className="text-2xl font-bold text-slate-500 mt-1 font-mono">UNKNOWN</div>
                 <div className="text-[11px] text-slate-500 mt-1">Sécurité anti-saturation</div>
               </div>
             </div>
@@ -696,6 +713,9 @@ export function Doctor13KernelApp({ payload }: { payload?: Record<string, unknow
                         >
                           <div className="flex items-center gap-2 truncate">
                             <span
+                              role="button"
+                              tabIndex={0}
+                              onKeyDown={(e) => { if (e.key === 'Enter') e.currentTarget.click(); }}
                               onClick={(e) => {
                                 e.stopPropagation();
                                 if (graph && graph.nodes[edge.source]) {
@@ -711,6 +731,9 @@ export function Doctor13KernelApp({ payload }: { payload?: Record<string, unknow
                             </span>
                             <span className="text-slate-500 text-[10px]">--[{edge.predicate}]--&gt;</span>
                             <span
+                              role="button"
+                              tabIndex={0}
+                              onKeyDown={(e) => { if (e.key === 'Enter') e.currentTarget.click(); }}
                               onClick={(e) => {
                                 e.stopPropagation();
                                 if (graph && graph.nodes[edge.target]) {
@@ -798,6 +821,9 @@ export function Doctor13KernelApp({ payload }: { payload?: Record<string, unknow
                       ].map((hub) => (
                         <div
                           key={hub.id}
+                          role="button"
+                          tabIndex={0}
+                          onKeyDown={(e) => { if (e.key === 'Enter') setSearchGraph(hub.id); }}
                           onClick={() => setSearchGraph(hub.id)}
                           className="p-2 rounded bg-slate-950/70 border border-slate-800/80 hover:border-purple-600/60 flex items-center justify-between text-xs cursor-pointer transition-colors"
                         >
@@ -932,7 +958,7 @@ export function Doctor13KernelApp({ payload }: { payload?: Record<string, unknow
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label className="text-xs font-semibold text-slate-300 block mb-1">
+                      <label htmlFor="target-work-id" className="text-xs font-semibold text-slate-300 block mb-1">
                         Numéro du Work Cible (ID)
                       </label>
                       <input
@@ -945,10 +971,11 @@ export function Doctor13KernelApp({ payload }: { payload?: Record<string, unknow
                     </div>
 
                     <div>
-                      <label className="text-xs font-semibold text-slate-300 block mb-1">
+                      <label htmlFor="custom-criterion-input" className="text-xs font-semibold text-slate-300 block mb-1">
                         Critère d'Assertion Python (ctx: work_id, status, attempts)
                       </label>
                       <input
+                        id="custom-criterion-input"
                         type="text"
                         value={customCriterion}
                         onChange={(e) => setCustomCriterion(e.target.value)}
