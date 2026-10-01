@@ -15,6 +15,7 @@ import type {
 const execFileAsync = promisify(execFile);
 
 export interface ProjectionEnv {
+  MANIFEST_DIR?: string;
   SUPABASE_URL?: string;
   SUPABASE_ANON_KEY?: string;
 }
@@ -24,6 +25,7 @@ export class ServerProjectionService {
 
   constructor(env: ProjectionEnv = {}) {
     this.env = {
+      MANIFEST_DIR: env.MANIFEST_DIR || process.env.MANIFEST_DIR,
       SUPABASE_URL: env.SUPABASE_URL || process.env.SUPABASE_URL,
       SUPABASE_ANON_KEY: env.SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY,
     };
@@ -54,7 +56,8 @@ export class ServerProjectionService {
 
   private async checkLocalRuntimeHealth(): Promise<{ isAvailable: boolean, presence?: RuntimePresence, error?: string }> {
     try {
-      const manifestPath = path.join(os.homedir(), '.aspace', 'dc', 'run', 'runtime.json');
+      const baseDir = this.env.MANIFEST_DIR || path.join(os.homedir(), '.aspace', 'dc', 'run');
+      const manifestPath = path.join(baseDir, 'runtime.json');
       if (!fs.existsSync(manifestPath)) {
         return { isAvailable: false, error: 'Manifest not found' };
       }
@@ -62,15 +65,17 @@ export class ServerProjectionService {
       const manifestStr = fs.readFileSync(manifestPath, 'utf8');
       const manifest = JSON.parse(manifestStr);
 
-      if (!manifest.url) {
-        return { isAvailable: false, error: 'No URL in manifest' };
+      const healthUrl = manifest.health_urls?.browser || (manifest.gateway_url ? `${manifest.gateway_url}/health` : null);
+
+      if (!healthUrl) {
+        return { isAvailable: false, error: 'No health URL in manifest' };
       }
 
       // Bound timeout for fetch
       const controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), 2000);
       
-      const response = await fetch(`${manifest.url}/health`, { 
+      const response = await fetch(healthUrl, { 
         signal: controller.signal 
       });
       clearTimeout(timeout);
