@@ -7,7 +7,8 @@ import { once } from 'node:events';
 import {
   ServerProjectionService,
   mapBrowserHealthToPresence,
-  resolveBrowserHealthUrl
+  resolveBrowserHealthUrl,
+  resolveWorkspaceSourcePaths
 } from '../../tools/projection-service.ts';
 
 async function withRuntimeServer(
@@ -241,6 +242,28 @@ async function runTests() {
     assert.strictEqual(presence.livenessReason, 'browser_worker_ttl_expired');
     assert.strictEqual(presence.fencingLeaseIdentity, 'fence:7');
     console.log('✓ Stale worker RuntimePresence mapping test passed');
+  }
+
+  // Test 9: workspace registry maps canonical source locations without trusting snapshot SHAs.
+  {
+    const paths = resolveWorkspaceSourcePaths({
+      repositories: {
+        core: { aspace_v3: { local_path: 'C:/A/ASpace_OS_V3', local_head: 'stale-parent' } },
+        satellites: {
+          agent_os: { legacy_v3_gitlink: 'C:/A/ASpace_OS_V3/00_Amadeus/10_Observers/agent-os' },
+          agent_os_desktop: { local_path: 'C:/A/agent-os/desktop', local_head: 'stale-desktop' }
+        }
+      }
+    });
+    assert.strictEqual(paths.parentRepoPath, 'C:/A/ASpace_OS_V3');
+    assert.strictEqual(
+      paths.parentGitlinkPath,
+      'C:/A/ASpace_OS_V3/00_Amadeus/10_Observers/agent-os'
+    );
+    assert.strictEqual(paths.agentOsDesktopPath, 'C:/A/agent-os/desktop');
+    assert.ok(!Object.values(paths).includes('stale-parent'));
+    assert.ok(!Object.values(paths).includes('stale-desktop'));
+    console.log('✓ Workspace source-path resolution test passed');
   }
 
   console.log('All tests passed!');

@@ -18,6 +18,7 @@ export interface ProjectionEnv {
   SUPABASE_URL?: string;
   SUPABASE_ANON_KEY?: string;
   RUNTIME_MANIFEST_PATH?: string;
+  WORKSPACE_REGISTRY_PATH?: string;
 }
 
 interface DcRuntimeManifestV1 {
@@ -53,6 +54,44 @@ interface DcBrowserHealthV1 {
 
 function runtimeManifestPath(override?: string): string {
   return override || path.join(os.homedir(), '.aspace', 'dc', 'run', 'runtime.json');
+}
+
+interface WorkspaceRegistrySourcePaths {
+  parentRepoPath?: string;
+  parentGitlinkPath?: string;
+  agentOsDesktopPath?: string;
+}
+
+function workspaceRegistryPath(override?: string): string {
+  return override || process.env.ASPACE_WORKSPACE_REGISTRY ||
+    path.join(os.homedir(), 'ASpace_OS_V3', 'ASPACE_WORKSPACE_REGISTRY.json');
+}
+
+export function resolveWorkspaceSourcePaths(registry: unknown): WorkspaceRegistrySourcePaths {
+  if (!registry || typeof registry !== 'object') return {};
+  const root = registry as any;
+  return {
+    parentRepoPath: root?.repositories?.core?.aspace_v3?.local_path,
+    parentGitlinkPath: root?.repositories?.satellites?.agent_os?.legacy_v3_gitlink,
+    agentOsDesktopPath: root?.repositories?.satellites?.agent_os_desktop?.local_path,
+  };
+}
+
+async function gitOutput(cwd: string, args: string[]): Promise<string> {
+  const { stdout } = await execFileAsync('git', args, { cwd, timeout: 2500 });
+  return stdout.trim();
+}
+
+async function readGitlinkCommit(parentRepoPath: string, gitlinkPath: string): Promise<string> {
+  const relative = path.relative(parentRepoPath, gitlinkPath).replace(/\\/g, '/');
+  if (!relative || relative.startsWith('../')) return 'UNKNOWN';
+  try {
+    const row = await gitOutput(parentRepoPath, ['ls-tree', 'HEAD', '--', relative]);
+    const match = row.match(/^160000\s+commit\s+([0-9a-f]{40})\t/);
+    return match?.[1] || 'UNKNOWN';
+  } catch {
+    return 'UNKNOWN';
+  }
 }
 
 export function resolveBrowserHealthUrl(manifest: unknown): string {
@@ -124,31 +163,57 @@ export class ServerProjectionService {
     this.env = {
       SUPABASE_URL: env.SUPABASE_URL || process.env.SUPABASE_URL,
       SUPABASE_ANON_KEY: env.SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY,
-      RUNTIME_MANIFEST_PATH: env.RUNTIME_MANIFEST_PATH || process.env.ASPACE_DC_RUNTIME_MANIFEST
+      RUNTIME_MANIFEST_PATH: env.RUNTIME_MANIFEST_PATH || process.env.ASPACE_DC_RUNTIME_MANIFEST,
+      WORKSPACE_REGISTRY_PATH: env.WORKSPACE_REGISTRY_PATH || process.env.ASPACE_WORKSPACE_REGISTRY
     };
   }
 
   private async getLocalFingerprint(): Promise<SourceSyncFingerprint> {
-    try {
-      const { stdout: headSha } = await execFileAsync('git', ['rev-parse', 'HEAD'], { timeout: 2000 });
-      const { stdout: statusOut } = await execFileAsync('git', ['status', '--porcelain'], { timeout: 2000 });
+    let sourcePaths: WorkspaceRegistrySourcePaths = {};
+    const registryPath = workspaceRegistryPath(this.env.WORKSPACE_REGISTRY_PATH);
 
-      return {
-        parentRepoSha: 'UNKNOWN',
-        parentGitlinkCommitSha: 'UNKNOWN',
-        parentGitlink: 'local',
-        agentOsDesktopHeadSha: headSha.trim() || 'UNKNOWN',
-        agentOsDesktopIsDirty: statusOut.trim().length > 0
-      };
+    try {
+      if (fs.existsSync(registryPath)) {
+        sourcePaths = resolveWorkspaceSourcePaths(
+          JSON.parse(fs.readFileSync(registryPath, 'utf8'))
+        );
+      }
     } catch {
-      return {
-        parentRepoSha: 'UNKNOWN',
-        parentGitlinkCommitSha: 'UNKNOWN',
-        parentGitlink: 'local',
-        agentOsDesktopHeadSha: 'UNKNOWN',
-        agentOsDesktopIsDirty: false
-      };
+      sourcePaths = {};
     }
+
+    const agentRepoPath = sourcePaths.agentOsDesktopPath || process.cwd();
+    let agentOsDesktopHeadSha = 'UNKNOWN';
+    let agentOsDesktopIsDirty = false;
+    try {
+      agentOsDesktopHeadSha = (await gitOutput(agentRepoPath, ['rev-parse', 'HEAD'])) || 'UNKNOWN';
+      agentOsDesktopIsDirty = (await gitOutput(agentRepoPath, ['status', '--porcelain'])).length > 0;
+    } catch {
+      // Keep explicit UNKNOWN; projection must not synthesize a source SHA.
+    }
+
+    let parentRepoSha = 'UNKNOWN';
+    if (sourcePaths.parentRepoPath) {
+      try {
+        parentRepoSha = (await gitOutput(sourcePaths.parentRepoPath, ['rev-parse', 'HEAD'])) || 'UNKNOWN';
+      } catch {
+        parentRepoSha = 'UNKNOWN';
+      }
+    }
+
+    const parentGitlink = sourcePaths.parentGitlinkPath || 'UNKNOWN';
+    const parentGitlinkCommitSha =
+      sourcePaths.parentRepoPath && sourcePaths.parentGitlinkPath
+        ? await readGitlinkCommit(sourcePaths.parentRepoPath, sourcePaths.parentGitlinkPath)
+        : 'UNKNOWN';
+
+    return {
+      parentRepoSha,
+      parentGitlinkCommitSha,
+      parentGitlink,
+      agentOsDesktopHeadSha,
+      agentOsDesktopIsDirty
+    };
   }
 
   private async checkLocalRuntimeHealth(): Promise<{ isAvailable: boolean, presence?: RuntimePresence, error?: string }> {
