@@ -79,7 +79,7 @@ export class ServerProjectionService {
         return { isAvailable: false, error: `HTTP ${response.status}` };
       }
 
-      const data = await response.json();
+      const data = await response.json() as any;
       
       if (data.schema === 'aspace.machine.health.v1') {
         return { isAvailable: true, presence: data.presence };

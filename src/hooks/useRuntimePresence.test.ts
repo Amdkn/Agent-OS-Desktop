@@ -1,4 +1,3 @@
-import assert from 'node:assert';
 import { resolveDisplayStatus } from './useRuntimePresence.ts';
 import type { RuntimePresence } from '../contracts/truth.ts';
 

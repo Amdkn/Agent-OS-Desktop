@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import type { AppManifest } from '../../types';
 import { canaryFixtures } from './fixtures';
 import { resolveDisplayStatus } from '../../hooks/useRuntimePresence';
