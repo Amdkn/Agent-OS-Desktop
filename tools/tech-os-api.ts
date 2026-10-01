@@ -9,7 +9,8 @@
  */
 
 import { exec } from 'node:child_process';
-import { serveWorkgraphProjection } from './workgraph-projection';
+import { serveWorkgraphProjection } from './workgraph-projection.ts';
+import { ServerProjectionService } from './projection-service.ts';
 import fs from 'node:fs';
 import path from 'node:path';
 import type { Plugin, ViteDevServer } from 'vite';
@@ -29,6 +30,39 @@ export function techOsApi(): Plugin {
 
         const url = (req.url || '/').split('?')[0];
         if (serveWorkgraphProjection(req, res, url, KERNEL_DIR)) return;
+
+        // 0. Server-side Projection (Issue #236)
+        if (url === '/projection' && req.method === 'POST') {
+          let body = '';
+          req.on('data', chunk => (body += chunk));
+          req.on('end', async () => {
+            try {
+              const requestPayload = JSON.parse(body);
+              const projectionService = new ServerProjectionService();
+              const responsePayload = await projectionService.project(requestPayload);
+              res.end(JSON.stringify(responsePayload));
+            } catch (err: any) {
+              res.statusCode = 400;
+              res.end(JSON.stringify({
+                requestId: 'unknown',
+                timestamp: Date.now(),
+                status: 'ERROR',
+                error: err.message || 'Invalid projection request payload',
+                systemStatus: 'UNKNOWN',
+                reconciliationState: 'UNKNOWN',
+                fingerprint: {
+                  parentRepoSha: 'UNKNOWN',
+                  parentGitlinkCommitSha: 'UNKNOWN',
+                  parentGitlink: 'local',
+                  agentOsDesktopHeadSha: 'UNKNOWN',
+                  agentOsDesktopIsDirty: false
+                },
+                evidenceRefs: []
+              }));
+            }
+          });
+          return;
+        }
 
         // 1. Liste et topologie des Workflows
         if (url === '/workflows' && req.method === 'GET') {
