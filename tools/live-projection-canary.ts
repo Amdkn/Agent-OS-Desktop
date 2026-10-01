@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
-import { pathToFileURL } from 'node:url';
+import { fileURLToPath } from 'node:url';
 import {
   ApiProjectionResponseSchema,
   isPresenceLive,
@@ -122,6 +122,11 @@ function arg(name: string): string | undefined {
   return index >= 0 ? process.argv[index + 1] : undefined;
 }
 
+export function isMainModule(metaUrl: string, argv1: string | undefined): boolean {
+  if (!argv1) return false;
+  return path.resolve(fileURLToPath(metaUrl)) === path.resolve(argv1);
+}
+
 async function main() {
   const baseUrl = (arg('--base-url') || process.env.AGENT_OS_BASE_URL || 'http://127.0.0.1:5555').replace(/\/$/, '');
   const expectedSystemStatus = arg('--expect-system') || process.env.AGENT_OS_EXPECT_SYSTEM || 'ANY';
@@ -165,7 +170,7 @@ async function main() {
   if (!evidence.pass) process.exitCode = 1;
 }
 
-if (import.meta.url === `file://${process.argv[1]?.replace(/\\/g, '/')}`) {
+if (isMainModule(import.meta.url, process.argv[1])) {
   main().catch((error) => {
     console.error(error instanceof Error ? error.stack || error.message : String(error));
     process.exitCode = 1;

@@ -1,5 +1,7 @@
 import assert from 'node:assert/strict';
-import { evaluateLiveProjection } from './live-projection-canary.ts';
+import path from 'node:path';
+import { pathToFileURL } from 'node:url';
+import { evaluateLiveProjection, isMainModule } from './live-projection-canary.ts';
 import type { ApiProjectionResponse } from '../src/contracts/truth.ts';
 
 const now = 1_800_000_000_000;
@@ -89,3 +91,12 @@ function base(): ApiProjectionResponse {
 }
 
 console.log('AGENT_OS_LIVE_CANARY_CONTRACT_PASS');
+
+
+{
+  const argvPath = path.resolve('tools/live-projection-canary.ts');
+  const metaUrl = pathToFileURL(argvPath).href;
+  assert.equal(isMainModule(metaUrl, argvPath), true);
+  assert.equal(isMainModule(metaUrl, path.resolve('tools/other.ts')), false);
+  assert.equal(isMainModule(metaUrl, undefined), false);
+}
