@@ -102,28 +102,14 @@ export function AgentCard({ agent, invokingId, invokeAgent }: AgentCardProps) {
         </div>
         
         {fingerprint && (
-          <div className="bg-slate-950/50 p-2 rounded border border-slate-800 flex flex-col gap-1">
-             <div className="text-[9px] text-slate-400 font-mono flex justify-between">
-                <span>V: {fingerprint.version}</span>
-                <span>Hash: {fingerprint.hash.substring(0, 8)}</span>
+          <div className="bg-slate-950/50 p-2 rounded border border-slate-800 flex flex-col gap-1 mt-2">
+             <div className="text-[9px] text-slate-400 font-mono flex flex-col gap-0.5">
+                <span>AgentOS HEAD: {fingerprint.agentOsDesktopHeadSha.substring(0, 8)}{fingerprint.agentOsDesktopIsDirty ? '*' : ''}</span>
+                <span>Parent Gitlink: {fingerprint.parentGitlinkCommitSha.substring(0, 8)}</span>
+                <span>Parent Repo: {fingerprint.parentRepoSha.substring(0, 8)}</span>
              </div>
-             {fingerprint.drift !== 'none' && (
-                <div className="text-[9px] font-mono text-amber-500">
-                  ⚠️ Drift Detected: {fingerprint.drift}
-                </div>
-             )}
           </div>
         )}
-      </div>
-
-        <button
-          onClick={() => invokeAgent(agent.id)}
-          disabled={invokingId === agent.id}
-          className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white transition-colors flex items-center gap-1.5 shadow-sm"
-        >
-          <span>{invokingId === agent.id ? '⏳' : '⚡'}</span>
-          <span>{invokingId === agent.id ? 'En cours...' : 'Invoquer'}</span>
-        </button>
       </div>
     </div>
   );
